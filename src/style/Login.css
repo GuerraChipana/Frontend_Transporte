@@ -1,0 +1,145 @@
+/* Estilos globales para la página de login */
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  position: relative;
+  background-color: #00000000; /* Color de fondo transparente para la página */
+}
+
+/* Imagen de fondo */
+.login-container::before {
+  content: '';
+  position: fixed; /* Usa 'fixed' para asegurar que se mantenga en la vista incluso si se hace scroll */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Usa 'vw' y 'vh' para asegurar el tamaño total */
+  height: 100vh;
+  background: url('/img/logo-blanco2.png') no-repeat center center;
+  background-size: cover;
+  z-index: -1;
+}
+
+/* Contenedor del formulario */
+.login-form {
+  background: rgba(255, 255, 255, 0.9); /* Fondo blanco semi-transparente */
+  border-radius: 10px;
+  padding: 20px; /* Ajusta el padding para hacer el formulario más pequeño */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Ajusta la sombra para un diseño más sutil */
+  width: 100%;
+  max-width: 350px; /* Reduce el ancho máximo del formulario */
+  text-align: center;
+  position: relative; /* Asegúrate de que el formulario esté sobre la imagen de fondo */
+  margin-top: 115px; /* Mueve el contenedor 10px hacia abajo */
+  box-sizing: border-box; /* Asegura que el padding se incluya en el ancho total */
+}
+
+/* Estilo de los títulos */
+.login-container h1 {
+  font-size: 24px; /* Ajusta el tamaño del título */
+  font-weight: 700;
+  color: #0004ff; /* Color azul más brillante */
+  margin-bottom: 20px;
+  font-family: 'Montserrat', sans-serif; /* Fuente Montserrat para un estilo más moderno */
+}
+
+/* Estilos de los grupos de formulario */
+.form-group {
+  margin-bottom: 15px; /* Ajusta el margen inferior */
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px; /* Ajusta el margen inferior */
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 10px; /* Ajusta el padding para hacer el campo de entrada más pequeño */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-sizing: border-box;
+  font-size: 14px; /* Ajusta el tamaño de la fuente */
+}
+
+/* Estilo del botón de envío */
+.submit-button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px; /* Ajusta el tamaño de la fuente */
+  color: #fff;
+  background-color: #007bff;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-top: 10px;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.02);
+}
+
+.submit-button:active {
+  background-color: #004494;
+}
+
+/* Mensaje de error */
+.error-message {
+  color: #d9534f;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+/* Estilo del enlace de regresar */
+.back-button {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8); /* Fondo blanco casi transparente */
+  color: #333;
+  font-size: 14px;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
+
+/* Media queries para dispositivos móviles */
+@media (max-width: 600px) {
+  .login-container h1 {
+    font-size: 20px; /* Ajusta el tamaño del título en pantallas pequeñas */
+  }
+
+  .form-group label {
+    font-size: 12px; /* Ajusta el tamaño de las etiquetas en pantallas pequeñas */
+  }
+
+  .form-group input {
+    font-size: 12px; /* Ajusta el tamaño de la fuente de entrada en pantallas pequeñas */
+  }
+
+  .submit-button {
+    font-size: 14px; /* Ajusta el tamaño del botón en pantallas pequeñas */
+  }
+
+  .back-button {
+    font-size: 12px; /* Ajusta el tamaño de la fuente del enlace en pantallas pequeñas */
+    top: 10px; /* Ajusta la posición en pantallas pequeñas */
+    right: 10px;
+  }
+}

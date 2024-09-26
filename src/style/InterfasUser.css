@@ -1,0 +1,133 @@
+/* Estilos globales para la página de interfaz de usuario */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  position: relative;
+  background-color: #00000000; /* Color de fondo transparente para la página */
+}
+
+/* Imagen de fondo */
+.container::before {
+  content: '';
+  position: fixed; /* Usa 'fixed' para asegurar que se mantenga en la vista incluso si se hace scroll */
+  top: 0;
+  left: 0;
+  width: 100vw; /* Usa 'vw' y 'vh' para asegurar el tamaño total */
+  height: 100vh;
+  background: url('/img/logo-blanco2.png') no-repeat center center;
+  background-size: cover;
+  /* Opacidad para que el fondo no distraiga */
+  z-index: -1;
+}
+
+/* Estilo para el contenido del formulario */
+.content {
+  background-color: rgba(255, 255, 255, 0.9); /* Fondo blanco semi-transparente */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: 350px; /* Reduce el ancho máximo para pantallas pequeñas */
+  width: 80%; /* Ajusta el ancho del formulario */
+  height: auto;
+  min-width: 250px; /* Ajusta el ancho mínimo del formulario */
+  text-align: center;
+  position: relative;
+  z-index: 1; /* Asegúrate de que esté por encima de la imagen de fondo */
+  box-sizing: border-box; /* Asegura que el padding se incluya en el ancho total */
+  margin-top: 40px; /* Mueve el contenedor 10px hacia abajo */
+}
+
+/* Estilo para el título */
+.title {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  font-family: 'Montserrat', sans-serif; /* Fuente Montserrat */
+}
+
+/* Estilo para las etiquetas */
+.label {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 10px;
+  color: #333;
+  font-family: 'Montserrat', sans-serif; /* Fuente Montserrat */
+}
+
+/* Estilo para los campos de entrada */
+.input {
+  padding: 10px;
+  font-size: 16px;
+  width: 100%;
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box; /* Asegura que el padding se incluya en el ancho total */
+}
+
+/* Estilo para el botón */
+.button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-sizing: border-box; /* Asegura que el padding se incluya en el ancho total */
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* Estilo para el enlace de administrador */
+.adminLink {
+  position: fixed; /* Asegúrate de que esté en la esquina de la pantalla */
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 20px;
+  border-radius: 14px;
+  background: rgba(253, 255, 255, 0.87); /* Fondo blanco casi transparente */
+  color: #535252;
+  font-size: 14px;
+  text-decoration: none;
+  font-family: 'Montserrat', sans-serif; /* Fuente Montserrat */
+  font-weight: 600;
+  transition: background 0.3s ease, color 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Añade sombra para destacarlo */
+}
+
+.adminLink:hover {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+}
+
+/* Media queries para dispositivos móviles */
+@media (max-width: 600px) {
+  .title {
+    font-size: 14px; /* Reduce el tamaño del título en pantallas pequeñas */
+  }
+
+  .label {
+    font-size: 10px; /* Reduce el tamaño de la etiqueta en pantallas pequeñas */
+  }
+
+  .input {
+    font-size: 10px; /* Reduce el tamaño de la fuente de entrada en pantallas pequeñas */
+  }
+
+  .button {
+    font-size: 12px; /* Ajusta el tamaño del botón en pantallas pequeñas */
+  }
+
+  .adminLink {
+    font-size: 12px; /* Ajusta el tamaño de la fuente del enlace en pantallas pequeñas */
+    bottom: 10px; /* Ajusta la posición en pantallas pequeñas */
+    right: 10px;
+    padding: 8px 16px; /* Ajusta el padding en pantallas pequeñas */
+  }
+}
