@@ -1,17 +1,15 @@
 /* eslint-disable no-unused-vars */
-/* Login.jsx */
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext'; // Importa el contexto
+import { AuthContext } from '../context/AuthContext';
 import '../style/Login.css';
 
 const Login = () => {
-    const [name, setName] = useState('');
-    const [password, setPassword] = useState('');
+    const [usuario, setUsuario] = useState('');
+    const [contrasena, setContrasena] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
-
-    const { login } = useContext(AuthContext); // Usa el contexto de autenticación
+    const { login } = useContext(AuthContext);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -22,7 +20,7 @@ const Login = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ name, password }),
+                body: JSON.stringify({ usuario, contrasena }),
             });
 
             if (!response.ok) {
@@ -30,16 +28,25 @@ const Login = () => {
             }
 
             const data = await response.json();
-            console.log(data); // Verifica los datos recibidos
+            console.log(data);
 
             if (data.success) {
-                login(); // Marca como autenticado
-                navigate('/Dashboard'); // Navega al Dashboard
+                const userData = {
+                    id: data.user.ID,              
+                    dni: data.user.DNI,            
+                    nombre: data.user.NOMBRE,
+                    apellido: data.user.APELLIDO,
+                    usuario: data.user.USUARIO,
+                    estado: data.user.ESTADO,
+                };
+                login(userData); 
+                navigate('/Dashboard/Bienvenida'); 
             } else {
                 setError(data.message || 'Credenciales incorrectas.');
             }
+
         } catch (error) {
-            console.error('Error durante el inicio de sesión:', error); // Agrega más información en caso de error
+            console.error('Error durante el inicio de sesión:', error);
             setError('Hubo un error en la solicitud.');
         }
     };
@@ -49,24 +56,22 @@ const Login = () => {
             <form onSubmit={handleSubmit} className="login-form">
                 <h1>Iniciar Sesión</h1>
                 <div className="form-group">
-                    <label htmlFor="name">Usuario:</label>
+                    <label htmlFor="usuario">Usuario:</label>
                     <input
                         type="text"
-                        id="name"
-                        name="name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
+                        id="usuario"
+                        value={usuario}
+                        onChange={(e) => setUsuario(e.target.value)}
                         required
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="password">Contraseña:</label>
+                    <label htmlFor="contrasena">Contraseña:</label>
                     <input
                         type="password"
-                        id="password"
-                        name="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
+                        id="contrasena"
+                        value={contrasena}
+                        onChange={(e) => setContrasena(e.target.value)}
                         required
                     />
                 </div>

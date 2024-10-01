@@ -41,11 +41,11 @@ button:hover {
 }
 
 .icon-edit {
-  background-color: #3498db; /* Azul claro */
+  background-color: #0c6294; /* Azul claro */
 }
 
 .icon-edit:hover {
-  background-color: #2980b9; /* Azul más oscuro */
+  background-color: #0487d3; /* Azul más oscuro */
 }
 
 .icon-delete {
@@ -115,7 +115,7 @@ button:hover {
 
 .modal-body .btn-primary {
   background-color: #3498db;
-  border-color: #2980b9;
+  border-color: #0f6aa7;
   font-weight: bold;
 }
 
@@ -129,6 +129,46 @@ button:hover {
 
 .modal-footer .btn-secondary:hover {
   background-color: #7f8c8d;
+}
+
+/* Estilos del Switch */
+.custom-switch {
+  position: relative;
+  display: inline-block;
+  width: 45px;
+  height: 22px;
+  background-color: #ccc;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-switch.active {
+  background-color: #0ba138; /* Verde para activo */
+}
+
+.custom-switch.inactive {
+  background-color: #ff0019; /* Rojo para inactivo */
+}
+
+.custom-switch:before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.3s;
+}
+
+.custom-switch.active:before {
+  transform: translateX(23px); /* Movimiento cuando está activo */
+}
+
+.custom-switch.inactive:before {
+  transform: translateX(0); /* Movimiento cuando está inactivo */
 }
 
 /* Responsive */

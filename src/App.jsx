@@ -7,6 +7,7 @@ import Propietarios from './Secciones/Propietarios';
 import Registro_sistema from './Secciones/Registro_sistema';
 import Seguro_vehicular from './Secciones/Seguro_vehicular';
 import Usuario from './Secciones/Usuarios';
+import Bienvenida from './Secciones/Bienvenida';
 import Asociaciones from './Secciones/Asociaciones';
 import Vehiculos from './Secciones/Vehiculos';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -26,6 +27,7 @@ function App() {
                 <Route path="Registro_sistema" element={<Registro_sistema />} />
                 <Route path="Seguro_vehicular" element={<Seguro_vehicular />} />
                 <Route path="Asociaciones" element={<Asociaciones />} />
+                <Route path="Bienvenida" element={<Bienvenida />} />
                 <Route path="Usuario" element={<Usuario />} />
                 <Route path="Vehiculos" element={<Vehiculos />} />
               </Route>

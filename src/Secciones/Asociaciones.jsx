@@ -1,15 +1,22 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Modal, Button, Table, Form } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-import { Button, Table, Modal } from 'react-bootstrap';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
+import debounce from 'lodash/debounce';
+import { AuthContext } from '../context/AuthContext';
 
 const Asociaciones = () => {
-  const [asociacionesList, setAsociacionesList] = useState([]);
-  const [asociacionNombre, setAsociacionNombre] = useState('');
-  const [asociacionId, setAsociacionId] = useState(null);
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const { user } = useContext(AuthContext);
+  const [asociaciones, setAsociaciones] = useState([]);
+  const [filteredAsociaciones, setFilteredAsociaciones] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [editId, setEditId] = useState(null);
+  const [nombre, setNombre] = useState('');
+  const [error, setError] = useState(null);
+  const [showInactive, setShowInactive] = useState(false);
 
   useEffect(() => {
     obtenerAsociaciones();
@@ -18,121 +25,193 @@ const Asociaciones = () => {
   const obtenerAsociaciones = async () => {
     try {
       const response = await axios.get('http://localhost:3002/api/asociaciones');
-      setAsociacionesList(response.data);
+      setAsociaciones(response.data);
+      setFilteredAsociaciones(response.data);
     } catch (error) {
-      console.error('Error al obtener las asociaciones:', error);
+      setError('Error al obtener asociaciones');
+      Swal.fire('Error', 'Error al obtener asociaciones', 'error');
     }
   };
-  const manejarEnvioFormulario = async (e) => {
-    e.preventDefault();
+
+  const handleSearchNombre = debounce((searchTerm) => {
+    const filtered = asociaciones.filter((asociacion) =>
+      asociacion.NOMBRE.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredAsociaciones(filtered);
+  }, 500);
+
+  const handleEdit = (asociacion) => {
+    setEditId(asociacion.ID);
+    setNombre(asociacion.NOMBRE);
+    setShowModal(true);
+  };
+
+  //CAMBIAR ESTADO
+  const handleChangeEstado = async (asociacion) => {
+    const nuevoEstado = asociacion.ESTADO === 1 ? 0 : 1;
     try {
-      if (asociacionId) {
-        await axios.put(`http://localhost:3002/api/asociaciones/${asociacionId}`, { nombre: asociacionNombre });
-        Swal.fire('Actualizado!', 'La asociación ha sido actualizada correctamente.', 'success');
-      } else {
-        await axios.post('http://localhost:3002/api/asociaciones', { nombre: asociacionNombre });
-        Swal.fire('Agregado!', 'La asociación ha sido agregada correctamente.', 'success');
-      }
-      limpiarFormulario();
-      setIsModalVisible(false);
+      await axios.patch(`http://localhost:3002/api/asociaciones/${asociacion.ID}/estado`, {
+        estado: nuevoEstado,
+        id_usuario_modificacion: user.id,
+      });
       obtenerAsociaciones();
+      Swal.fire('Éxito', 'Estado de la asociación actualizado', 'success');
     } catch (error) {
-      console.error('Error al guardar la asociación:', error);
-      Swal.fire('Error!', `Hubo un problema al guardar la asociación: ${error.message}`, 'error');
+      Swal.fire('Error', 'Error al cambiar el estado de la asociación', 'error');
     }
   };
 
-  const manejarEdicion = (asociacion) => {
-    setAsociacionNombre(asociacion.nombre);
-    setAsociacionId(asociacion.id);
-    setIsModalVisible(true);
-  };
+  //EDICIONES PARA ASOCICIONES
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  const manejarEliminacion = async (id) => {
-    Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡No podrás revertir esto!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminarlo',
-      cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await axios.delete(`http://localhost:3002/api/asociaciones/${id}`);
-          Swal.fire('Eliminado!', 'La asociación ha sido eliminada correctamente.', 'success');
-          obtenerAsociaciones();
-        } catch (error) {
-          console.error('Error al eliminar la asociación:', error);
-          Swal.fire('Error!', `Hubo un problema al eliminar la asociación: ${error.message}`, 'error');
-        }
+    // Verificar si el usuario está autenticado
+    console.log('Datos de usuario:', user);  // Agrega este log para verificar el valor de user
+
+    if (!user || !user.id) {
+      console.error('Usuario no autenticado o ID no disponible');
+      Swal.fire('Error', 'Usuario no autenticado o ID no disponible', 'error');
+      return;
+    }
+
+    try {
+      if (editId) {
+        const data = JSON.stringify({
+          nombre,
+          id_usuario_modificacion: user.id,
+        });
+        await axios.put(`http://localhost:3002/api/asociaciones/${editId}`, data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        Swal.fire('Éxito', 'Asociación actualizada exitosamente', 'success');
+      } else {
+        const data = JSON.stringify({
+          nombre,
+          id_usuario: user.id,  // Usar el ID del usuario autenticado
+        });
+        await axios.post('http://localhost:3002/api/asociaciones', data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        Swal.fire('Éxito', 'Asociación agregada exitosamente', 'success');
       }
-    });
+      obtenerAsociaciones();
+      setShowModal(false);
+      setNombre('');
+      setEditId(null);
+    } catch (error) {
+      console.error('Error submitting form:', error.message);
+      Swal.fire('Error', 'Error al agregar o actualizar la asociación', 'error');
+    }
   };
 
-  const limpiarFormulario = () => {
-    setAsociacionNombre('');
-    setAsociacionId(null);
+  const resetForm = () => {
+    setNombre('');
+    setEditId(null);
   };
 
   return (
     <div className="container-fluid">
-      <h1 className="text-center mb-4">Asociación de Motos del Distrito</h1>
+      <h1 className="text-center mb-4">Asociaciones</h1>
+      <div className="d-flex justify-content-between align-items-center mb-3">
+        <Button variant="primary" onClick={() => {
+          resetForm();
+          setShowModal(true);
+        }}>
+          Agregar Asociación
+        </Button>
+        <Form.Control
+          type="text"
+          placeholder="Buscar por Nombre"
+          className="w-50"
+          onChange={(e) => handleSearchNombre(e.target.value)}
+        />
+        <Button variant="secondary" onClick={() => setShowInactive(!showInactive)}>
+          {showInactive ? 'Ocultar Inactivos' : 'Ver Inactivos'}
+        </Button>
+      </div>
 
-      <Button variant="primary" className="mb-3" onClick={() => {
-        limpiarFormulario();
-        setIsModalVisible(true);
-      }}>
-        Agregar Asociación
-      </Button>
-
-      <Table striped bordered hover className="table-responsive">
-        <thead>
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+      <Table striped bordered hover responsive className="table">
+        <thead className="table-light">
           <tr>
             <th>ID</th>
             <th>Nombre</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {asociacionesList
-            .slice()
-            .sort((a, b) => a.id - b.id)
-            .map((asociacion) => (
-              <tr key={asociacion.id}>
-                <td>{asociacion.id}</td><td>{asociacion.nombre}</td>
-                <td>
-                  <div className="d-flex justify-content-around">
-                    <Button className="icon-button icon-edit" onClick={() => manejarEdicion(asociacion)}>
-                      <FaEdit />
-                    </Button>
-                    <Button className="icon-button icon-delete" onClick={() => manejarEliminacion(asociacion.id)}>
-                      <FaTrashAlt />
-                    </Button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+          {filteredAsociaciones.length > 0 ? (
+            filteredAsociaciones
+              .filter((asociacion) => (showInactive ? true : asociacion.ESTADO === 1))
+              .map((asociacion) => (
+                <tr key={asociacion.ID}>
+                  <td>{asociacion.ID}</td>
+                  <td>{asociacion.NOMBRE}</td>
+                  <td>
+                    <span className={`badge ${asociacion.ESTADO === 1 ? 'bg-success' : 'bg-danger'}`}>
+                      {asociacion.ESTADO === 1 ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="d-flex justify-content-center align-items-center">
+                      <Button
+                        className="icon-button icon-edit me-3"
+                        onClick={() => handleEdit(asociacion)}
+                        variant="secondary"
+                      >
+                        <FaEdit />
+                      </Button>
+                      <Button
+                        variant={asociacion.ESTADO === 1 ? 'danger' : 'success'}
+                        className="ms-2"
+                        onClick={() => handleChangeEstado(asociacion)}
+                      >
+                        {asociacion.ESTADO === 1 ? 'Desactivar' : 'Activar'}
+                      </Button>
+                    </div>
+                  </td>
+
+                </tr>
+              ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="text-center">
+                No hay asociaciones disponibles.
+              </td>
+            </tr>
+          )}
         </tbody>
       </Table>
 
 
-      <Modal show={isModalVisible} onHide={() => setIsModalVisible(false)} size="lg">
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
-          <Modal.Title>{asociacionId ? 'Editar Asociación' : 'Agregar Asociación'}</Modal.Title>
+          <Modal.Title>{editId ? 'Editar Asociación' : 'Agregar Asociación'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={manejarEnvioFormulario}>
-            <div className="mb-3">
-              <label htmlFor="nombre" className="form-label">Nombre</label>
-              <input type="text" className="form-control" id="nombre" value={asociacionNombre} onChange={(e) => setAsociacionNombre(e.target.value)} required />
-            </div>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Nombre</Form.Label>
+              <Form.Control
+                type="text"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                required
+              />
+            </Form.Group>
             <Button variant="primary" type="submit">
-              {asociacionId ? 'Actualizar' : 'Agregar'}
+              {editId ? 'Actualizar' : 'Agregar'}
             </Button>
-          </form>
+          </Form>
         </Modal.Body>
       </Modal>
     </div>

@@ -1,131 +1,128 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
 import debounce from 'lodash/debounce';
+import { AuthContext } from '../context/AuthContext';
 
-function Seguro_vehicular() {
+const SeguroVehicular = () => {
+  const { user } = useContext(AuthContext);
   const [seguros, setSeguros] = useState([]);
   const [filteredSeguros, setFilteredSeguros] = useState([]);
   const [aseguradora, setAseguradora] = useState('');
-  const [nPoliza, setNPoliza] = useState('');
-  const [vigencia, setVigencia] = useState('');
   const [editId, setEditId] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [searchPoliza, setSearchPoliza] = useState('');
+  const [showInactive, setShowInactive] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchData();
+    obtenerSeguros();
   }, []);
 
   useEffect(() => {
-    const filterSeguros = () => {
-      if (searchPoliza.trim() === '') {
-        setFilteredSeguros(seguros);
-      } else {
-        const filtered = seguros.filter((seguro) =>
-          seguro.n_poliza.toString().includes(searchPoliza.trim())
-        );
-        setFilteredSeguros(filtered);
-      }
-    };
+    // Filtrar seguros cuando cambie el estado de showInactive
+    if (showInactive) {
+      setFilteredSeguros(seguros);
+    } else {
+      setFilteredSeguros(seguros.filter(seguro => seguro.estado === 1));
+    }
+  }, [showInactive, seguros]);
 
-    filterSeguros();
-  }, [searchPoliza, seguros]);
-
-  const fetchData = async () => {
+  // Función para obtener datos
+  const obtenerSeguros = async () => {
     try {
       const response = await axios.get('http://localhost:3002/api/seguros');
-      const sortedSeguros = response.data.sort((a, b) => a.id - b.id);
-      setSeguros(sortedSeguros);
-      setFilteredSeguros(sortedSeguros);
+      setSeguros(response.data);
     } catch (error) {
       console.error('Error al obtener datos:', error);
-      Swal.fire('Error!', 'Hubo un problema al obtener los datos de seguros.', 'error');
+      setError('Error al obtener datos de seguros');
+      Swal.fire('Error', 'Hubo un problema al obtener los datos de seguros.', 'error');
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      if (editId) {
-        await axios.put(`http://localhost:3002/api/seguros/${editId}`, {
-          aseguradora,
-          n_poliza: nPoliza,
-          vigencia,
-        });
-        Swal.fire('Actualizado!', 'El seguro vehicular ha sido actualizado.', 'success');
-      } else {
-        await axios.post('http://localhost:3002/api/seguros', {
-          aseguradora,
-          n_poliza: nPoliza,
-          vigencia,
-        });
-        Swal.fire('Agregado!', 'El seguro vehicular ha sido agregado.', 'success');
-      }
-      resetForm();
-      setShowModal(false);
-      fetchData(); 
-    } catch (error) {
-      console.error('Error al guardar el seguro vehicular:', error);
-      Swal.fire('Error!', 'Hubo un problema al guardar el seguro vehicular.', 'error');
-    }
-  };
+  const handleSearchAseguradora = debounce((searchTerm) => {
+    const filtered = seguros.filter((seguro) =>
+      seguro.aseguradora.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredSeguros(filtered);
+  }, 500);
 
-  const handleDelete = async (id) => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡No podrás revertir esto!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3498db',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar!',
-      cancelButtonText: 'Cancelar'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await axios.delete(`http://localhost:3002/api/seguros/${id}`);
-        Swal.fire('Eliminado!', 'El seguro vehicular ha sido eliminado.', 'success');
-        fetchData(); 
-      } catch (error) {
-        console.error('Error al eliminar seguro vehicular:', error);
-        Swal.fire('Error!', 'Hubo un problema al eliminar el seguro vehicular.', 'error');
-      }
-    }
-  };
-
+  // Edición de un seguro
   const handleEdit = (seguro) => {
     setEditId(seguro.id);
     setAseguradora(seguro.aseguradora);
-    setNPoliza(seguro.n_poliza);
-    setVigencia(seguro.vigencia);
     setShowModal(true);
   };
 
-  const resetForm = () => {
-    setAseguradora('');
-    setNPoliza('');
-    setVigencia('');
-    setEditId(null);
+  // Cambio de estado del seguro
+  const handleChangeEstado = async (seguro) => {
+    const nuevoEstado = seguro.estado === 1 ? 0 : 1;
+    try {
+      await axios.patch(`http://localhost:3002/api/seguros/${seguro.id}/estado`, {
+        estado: nuevoEstado,
+        id_usuario_modificacion: user.id,
+      });
+      Swal.fire('Éxito', `El seguro vehicular ha sido ${nuevoEstado === 1 ? 'activado' : 'desactivado'}.`, 'success');
+      obtenerSeguros(); // Vuelve a obtener los seguros para actualizar la lista
+    } catch (error) {
+      console.error('Error al cambiar el estado del seguro vehicular:', error);
+      Swal.fire('Error', 'Hubo un problema al cambiar el estado del seguro vehicular.', 'error');
+    }
   };
 
-  const handleSearchPoliza = debounce((value) => {
-    setSearchPoliza(value);
-  }, 300);
+  // Envío de formulario
+  const handleSubmit = async (event) => {
+    event.preventDefault();
 
-  //Funcion para convertir la fecha en formato local
-  const formatDate = (isoDate) => {
-    const date = new Date(isoDate);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'numeric',
-      day: 'numeric'
-    });
+    if (!user || !user.id) {
+      console.error('Usuario no autenticado o ID no disponible');
+      Swal.fire('Error', 'Usuario no autenticado o ID no disponible', 'error');
+      return;
+    }
+
+    const currentDate = new Date().toISOString(); // Obtener la fecha actual en formato ISO
+
+    try {
+      if (editId) {
+        const data = JSON.stringify({
+          aseguradora,
+          id_usuario_modificacion: user.id,
+        });
+        await axios.put(`http://localhost:3002/api/seguros/${editId}`, data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        Swal.fire('Éxito', 'Aseguradora actualizada exitosamente', 'success');
+      } else {
+        const data = JSON.stringify({
+          aseguradora,
+          id_usuario: user.id,
+        });
+        await axios.post('http://localhost:3002/api/seguros', data, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        Swal.fire('Éxito', 'Aseguradora agregada exitosamente', 'success');
+      }
+      obtenerSeguros();
+      setShowModal(false);
+      setAseguradora('');
+      setEditId(null);
+    } catch (error) {
+      console.error('Error submitting form:', error.message);
+      Swal.fire('Error', 'Error al agregar o actualizar la asociación', 'error');
+    }
+  };
+
+  // Resetear formulario
+  const resetForm = () => {
+    setAseguradora('');
+    setEditId(null);
   };
 
   return (
@@ -143,97 +140,98 @@ function Seguro_vehicular() {
         </Button>
         <Form.Control
           type="text"
-          placeholder="Buscar por N° de Póliza"
+          placeholder="Buscar por Aseguradora"
           className="w-50"
-          onChange={(e) => handleSearchPoliza(e.target.value)}
+          onChange={(e) => handleSearchAseguradora(e.target.value)}
         />
+        <Button
+          variant="secondary"
+          onClick={() => setShowInactive(!showInactive)}
+        >
+          {showInactive ? 'Ocultar Inactivos' : 'Ver Inactivos'}
+        </Button>
       </div>
 
-      <Table striped bordered hover className="table table-responsive">
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
+
+      <Table striped bordered hover responsive>
         <thead>
           <tr>
             <th>ID</th>
             <th>Aseguradora</th>
-            <th>N° de Póliza</th>
-            <th>Vigencia</th>
-            <th>Acciones</th>
+            <th>Estado</th>
+            <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {filteredSeguros.map((seguro) => (
-            <tr key={seguro.id}>
-              <td>{seguro.id}</td>
-              <td>{seguro.aseguradora}</td>
-              <td>{seguro.n_poliza}</td>
-              <td>{formatDate(seguro.vigencia)}</td>
-              <td>
-                <div className="d-flex justify-content-around">
-                  <Button
-                    className="icon-button icon-edit"
-                    onClick={() => handleEdit(seguro)}
-                  >
-                    <FaEdit />
-                  </Button>
-                  <Button
-                    className="icon-button icon-delete"
-                    onClick={() => handleDelete(seguro.id)}
-                  >
-                    <FaTrashAlt />
-                  </Button>
-                </div>
+          {filteredSeguros.length > 0 ? (
+            filteredSeguros.map((seguro) => (
+              <tr key={seguro.id}>
+                <td>{seguro.id}</td>
+                <td>{seguro.aseguradora}</td>
+                <td>
+                  <span className={`badge ${seguro.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
+                    {seguro.estado === 1 ? 'Activo' : 'Inactivo'}
+                  </span>
+                </td>
+                <td>
+                  <div className="d-flex justify-content-center align-items-center">
+                    <Button
+                      className="icon-button icon-edit me-3" // Aumenté el margen derecho
+                      onClick={() => handleEdit(seguro)}
+                    >
+                      <FaEdit />
+                    </Button>
+                    <Button
+                      variant={seguro.estado === 1 ? 'danger' : 'success'}
+                      className="ms-2" // Clase de margen izquierdo para el botón
+                      onClick={() => handleChangeEstado(seguro)}
+                    >
+                      {seguro.estado === 1 ? 'Desactivar' : 'Activar'}
+                    </Button>
+                  </div>
+
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="4" className="text-center">
+                No hay seguros vehiculares disponibles.
               </td>
             </tr>
-          ))}
+          )}
         </tbody>
       </Table>
+
 
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{editId ? 'Editar Seguro Vehicular' : 'Agregar Seguro Vehicular'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label htmlFor="aseguradora" className="form-label">Aseguradora</label>
-              <input
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3">
+              <Form.Label>Aseguradora</Form.Label>
+              <Form.Control
                 type="text"
-                className="form-control"
-                id="aseguradora"
                 value={aseguradora}
                 onChange={(e) => setAseguradora(e.target.value)}
                 required
               />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="nPoliza" className="form-label">N° de Póliza</label>
-              <input
-                type="number"
-                className="form-control"
-                id="nPoliza"
-                value={nPoliza}
-                onChange={(e) => setNPoliza(e.target.value)}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="vigencia" className="form-label">Vigencia</label>
-              <input
-                type="date"
-                className="form-control"
-                id="vigencia"
-                value={vigencia}
-                onChange={(e) => setVigencia(e.target.value)}
-                required
-              />
-            </div>
+            </Form.Group>
             <Button variant="primary" type="submit">
               {editId ? 'Actualizar' : 'Agregar'}
             </Button>
-          </form>
+          </Form>
         </Modal.Body>
       </Modal>
     </div>
   );
-}
+};
 
-export default Seguro_vehicular;
+export default SeguroVehicular;

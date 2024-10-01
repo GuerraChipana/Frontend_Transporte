@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // Importa Link de react-router-dom
-import '../style/InterfasUser.css'; // Importar el archivo CSS
+import { Link } from 'react-router-dom'; 
+import '../style/InterfasUser.css'; 
 
 const InterfasUser = () => {
   const [placa, setPlaca] = useState('');
@@ -12,7 +12,6 @@ const InterfasUser = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Lógica para manejar la búsqueda de la placa
     console.log('Placa ingresada:', placa);
   };
 

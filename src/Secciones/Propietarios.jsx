@@ -4,7 +4,7 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form } from 'react-bootstrap';
 import Swal from 'sweetalert2';
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
 import '../style/Secciones.css';
 import debounce from 'lodash/debounce';
 
@@ -16,28 +16,19 @@ function Propietarios() {
   const [dni, setDni] = useState('');
   const [telefono, setTelefono] = useState('');
   const [domicilio, setDomicilio] = useState('');
+  const [estado, setEstado] = useState(true);
   const [editId, setEditId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchDni, setSearchDni] = useState('');
+  const [showInactive, setShowInactive] = useState(false);
 
   useEffect(() => {
     fetchData();
   }, []);
 
   useEffect(() => {
-    const filterPropietarios = () => {
-      if (searchDni.trim() === '') {
-        setFilteredPropietarios(propietarios);
-      } else {
-        const filtered = propietarios.filter((propietario) =>
-          propietario.dni.toString().includes(searchDni.trim())
-        );
-        setFilteredPropietarios(filtered);
-      }
-    };
-
     filterPropietarios();
-  }, [searchDni, propietarios]);
+  }, [searchDni, propietarios, showInactive]);
 
   const fetchData = async () => {
     try {
@@ -50,6 +41,15 @@ function Propietarios() {
     }
   };
 
+  const filterPropietarios = () => {
+    const filtered = propietarios.filter((propietario) => {
+      const matchesDni = propietario.dni.toString().includes(searchDni.trim());
+      const matchesStatus = showInactive || propietario.estado;
+      return matchesDni && matchesStatus;
+    });
+    setFilteredPropietarios(filtered);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -60,6 +60,7 @@ function Propietarios() {
           dni,
           telefono,
           domicilio,
+          estado
         });
         Swal.fire('Actualizado!', 'El propietario ha sido actualizado.', 'success');
       } else {
@@ -69,6 +70,7 @@ function Propietarios() {
           dni,
           telefono,
           domicilio,
+          idUsuario: 1
         });
         Swal.fire('Agregado!', 'El propietario ha sido agregado.', 'success');
       }
@@ -81,30 +83,6 @@ function Propietarios() {
     }
   };
 
-  const handleDelete = async (id) => {
-    const result = await Swal.fire({
-      title: '¿Estás seguro?',
-      text: '¡No podrás revertir esto!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3498db',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar!',
-      cancelButtonText: 'Cancelar'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        await axios.delete(`http://localhost:3002/api/propietarios/${id}`);
-        Swal.fire('Eliminado!', 'El propietario ha sido eliminado.', 'success');
-        fetchData(); // Actualiza la lista de propietarios
-      } catch (error) {
-        console.error('Error al eliminar propietario:', error);
-        Swal.fire('Error!', 'Hubo un problema al eliminar el propietario.', 'error');
-      }
-    }
-  };
-
   const handleEdit = (propietario) => {
     setEditId(propietario.id);
     setNombre(propietario.nombre);
@@ -112,6 +90,7 @@ function Propietarios() {
     setDni(propietario.dni);
     setTelefono(propietario.telefono);
     setDomicilio(propietario.domicilio);
+    setEstado(propietario.estado);
     setShowModal(true);
   };
 
@@ -121,12 +100,26 @@ function Propietarios() {
     setDni('');
     setTelefono('');
     setDomicilio('');
+    setEstado(true);
     setEditId(null);
   };
 
   const handleSearchDni = debounce((value) => {
     setSearchDni(value);
   }, 300);
+
+  const toggleEstado = async (id, currentStatus) => {
+    try {
+      await axios.patch(`http://localhost:3002/api/propietarios/${id}/estado`, {
+        estado: !currentStatus
+      });
+      Swal.fire('Estado Actualizado!', 'El estado del propietario ha sido cambiado.', 'success');
+      fetchData(); // Actualiza la lista de propietarios
+    } catch (error) {
+      console.error('Error al cambiar el estado:', error);
+      Swal.fire('Error!', 'Hubo un problema al cambiar el estado.', 'error');
+    }
+  };
 
   return (
     <div className="container-fluid">
@@ -147,6 +140,12 @@ function Propietarios() {
           className="w-50"
           onChange={(e) => handleSearchDni(e.target.value)}
         />
+        <Button
+          variant="secondary"
+          onClick={() => setShowInactive(!showInactive)}
+        >
+          {showInactive ? 'Ocultar Inactivos' : 'Ver Inactivos'}
+        </Button>
       </div>
 
       <Table striped bordered hover className="table table-responsive">
@@ -158,6 +157,7 @@ function Propietarios() {
             <th>DNI</th>
             <th>Teléfono</th>
             <th>Domicilio</th>
+            <th>Estado</th>
             <th>Acciones</th>
           </tr>
         </thead>
@@ -171,19 +171,22 @@ function Propietarios() {
               <td>{propietario.telefono}</td>
               <td>{propietario.domicilio}</td>
               <td>
-                <div className="d-flex justify-content-around">
+                <span className={`badge ${propietario.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
+                  {propietario.estado ? 'Activo' : 'Inactivo'}
+                </span>
+              </td>
+              <td>
+                <div className="d-flex justify-content-around align-items-center">
                   <Button
                     className="icon-button icon-edit"
                     onClick={() => handleEdit(propietario)}
                   >
                     <FaEdit />
                   </Button>
-                  <Button
-                    className="icon-button icon-delete"
-                    onClick={() => handleDelete(propietario.id)}
-                  >
-                    <FaTrashAlt />
-                  </Button>
+                  <div
+                    className={`custom-switch ${propietario.estado ? 'activo' : 'inactivo'}`}
+                    onClick={() => toggleEstado(propietario.id, propietario.estado)}
+                  />
                 </div>
               </td>
             </tr>
@@ -253,7 +256,7 @@ function Propietarios() {
               />
             </div>
             <Button variant="primary" type="submit">
-              {editId ? 'Actualizar' : 'Agregar'}
+              Guardar
             </Button>
           </form>
         </Modal.Body>

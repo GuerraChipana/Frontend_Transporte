@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 import '../style/Dashboard.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -7,6 +7,7 @@ import { faChevronLeft, faChevronRight, faHouse, faUser, faBuilding, faCar, faFi
 
 function Dashboard() {
     const [collapsed, setCollapsed] = useState(false);
+
 
     const toggleSidebar = () => {
         setCollapsed(!collapsed);
@@ -19,15 +20,16 @@ function Dashboard() {
                     <svg className="bi" width="40" height="32"><use xlinkHref="#bootstrap" /></svg>
                     <span className="visually-hidden">Icon-only</span>
                 </a>
+
                 <ul className="nav nav-pills nav-flush flex-column mb-auto text-start">
                     <li className="nav-item">
-                        <Link to="#" className="nav-link py-3 border-bottom" title="Bienvenida" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <Link to="Bienvenida" className="nav-link py-3 border-bottom" title="Bienvenida" data-bs-toggle="tooltip" data-bs-placement="right">
                             <FontAwesomeIcon icon={faHouse} aria-label="Bienvenida" />
                             {!collapsed && <span className="nav-text">Bienvenida</span>}
                         </Link>
                     </li>
                     <li>
-                        <Link to="#" className="nav-link py-3 border-bottom" title="Usuarios" data-bs-toggle="tooltip" data-bs-placement="right">
+                        <Link to="Usuario" className="nav-link py-3 border-bottom" title="Usuarios" data-bs-toggle="tooltip" data-bs-placement="right">
                             <FontAwesomeIcon icon={faUser} aria-label="Usuarios" />
                             {!collapsed && <span className="nav-text">Usuarios</span>}
                         </Link>
@@ -67,7 +69,7 @@ function Dashboard() {
                     </div>
                 </div>
                 <div className="dropdown border-top mt-auto">
-                    <a href="#" className="d-flex align-items-center justify-content-center p-3  text-decoration-none dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a href="#" className="d-flex align-items-center justify-content-center p-3 text-decoration-none dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
                         <FontAwesomeIcon icon={faUser} />
                     </a>
                     <ul className="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
