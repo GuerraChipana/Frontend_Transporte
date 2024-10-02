@@ -184,13 +184,13 @@ function Usuario() {
                   >
                     <FaEdit />
                   </Button>
-                  <div
-                    className={`custom-switch ${usuario.estado === 1 ? 'active' : 'inactive'}`}
+                  <Button
+                    variant={usuario.estado === 1 ? 'danger' : 'success'}
+                    className="ms-2"
                     onClick={() => handleChangeEstado(usuario)}
                   >
-                    <div className="switch-inner">
-                    </div>
-                  </div>
+                    {usuario.estado === 1 ? 'Desactivar' : 'Activar'}
+                  </Button>
                 </div>
               </td>
             </tr>

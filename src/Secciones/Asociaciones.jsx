@@ -103,7 +103,7 @@ const Asociaciones = () => {
       setNombre('');
       setEditId(null);
     } catch (error) {
-      console.error('Error submitting form:', error.message);
+      console.error('Error al enviar el formulario:', error.message);
       Swal.fire('Error', 'Error al agregar o actualizar la asociación', 'error');
     }
   };
@@ -115,7 +115,7 @@ const Asociaciones = () => {
 
   return (
     <div className="container-fluid">
-      <h1 className="text-center mb-4">Asociaciones</h1>
+      <h1 className="text-center mb-4">Gestión de Asociaciones</h1>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <Button variant="primary" onClick={() => {
           resetForm();
@@ -139,7 +139,7 @@ const Asociaciones = () => {
           {error}
         </div>
       )}
-      <Table striped bordered hover responsive className="table">
+      <Table striped bordered hover responsive className="table table-responsive">
         <thead className="table-light">
           <tr>
             <th>ID</th>
