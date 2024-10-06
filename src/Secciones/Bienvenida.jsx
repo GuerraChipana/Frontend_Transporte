@@ -1,10 +1,10 @@
-/* eslint-disable react/no-unknown-property */
 // eslint-disable-next-line no-unused-vars
 import React, { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faIdCard, faUserCircle, faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faIdCard, faUserCircle, faCheckCircle, faTimesCircle, faStar } from '@fortawesome/free-solid-svg-icons';
+import '../style/Bienvenida.css'; // Import the CSS file
 
 function Bienvenida() {
     const { user } = useContext(AuthContext);
@@ -21,20 +21,22 @@ function Bienvenida() {
     }
 
     return (
-        <div className="container h-100 d-flex flex-column justify-content-center">
-            <div className="text-center mb-4 d-flex align-items-center justify-content-center">
-                <img
-                    src="/img/escudo-icon.png"
-                    alt="icon"
-                    className="me-2"
-                    style={{ width: '80px', verticalAlign: 'middle' }} // Aumentar tamaño
-                />
-                <h2 className="text-dark mb-0">Bienvenido al Sistema de Transporte</h2>
-            </div>
-            <h2 className="text-center text-dark mb-4">Tupac Amaru Inca</h2>
+        <div className="container-fluid h-100 d-flex flex-column justify-content-center">
 
+            <div className='titulo'>
+                <div className="text-center mb-4 d-flex align-items-center justify-content-center">
+                    <img
+                        src="/img/escudo-icon.png"
+                        alt="icon"
+                        className="me-2"
+                        style={{ width: '80px', verticalAlign: 'middle' }} // Aumentar tamaño
+                    />
+                    <h2 className="text-dark mb-0">Bienvenido al Sistema de Transporte</h2>
+                </div>
+                <h2 className="text-center text-dark mb-4">Tupac Amaru Inca</h2>
+            </div>
             <div className="row justify-content-center">
-                <div className="col-md-10"> {/* Aumentar el tamaño del cuadro */}
+                <div className="col-md-8 col-lg-6">
                     <div className="card shadow-lg border-primary">
                         <div className="card-body">
                             <h5 className="card-title text-center mb-4">
@@ -64,61 +66,27 @@ function Bienvenida() {
                                         )}
                                         <strong> Estado:</strong> {user.estado === 1 ? 'Activo' : 'Inactivo'}
                                     </p>
+                                    <div className="text-secondary">
+                                        {user.rol === 1 ? (
+                                            <>
+                                                <FontAwesomeIcon icon={faStar} className="text-warning font-large" />
+                                                <span className="text-dark ms-2"><strong>Superadministrador</strong></span>
+                                            </>
+                                        ) : user.rol === 2 ? (
+                                            <>
+                                                <FontAwesomeIcon icon={faUser} className="text-primary font-large" />
+                                                <span className="text-dark ms-2"><strong>Administrador</strong></span>
+                                            </>
+                                        ) : null}
+                                    </div>
+
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-
-            <style jsx="true">{`
-                .container {
-                    margin-top: 0;
-                }
-
-                .card {
-                    border-radius: 10px;
-                    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-                }
-
-                .card-title {
-                    font-size: 2rem;
-                    color: #333; /* Changed to a darker color for better readability */
-                    font-weight: bold;
-                    border-bottom: 2px solid #007BFF;
-                    padding-bottom: 10px;
-                    margin-bottom: 20px;
-                }
-
-                p {
-                    font-size: 1.1rem;
-                    color: #555; /* Softer color for paragraph text */
-                }
-
-                .spinner-border {
-                    color: #007BFF; /* Retained blue for loading spinner */
-                }
-
-                .text-success {
-                    font-size: 1.5rem;
-                    color: #28a745; /* Green for active status */
-                }
-
-                .text-danger {
-                    font-size: 1.5rem;
-                    color: #dc3545; /* Changed to Bootstrap's danger color */
-                }
-
-                @media (max-width: 768px) {
-                    .card-title {
-                        font-size: 1.75rem; /* Slightly smaller on mobile */
-                    }
-
-                    p {
-                        font-size: 1rem; /* Maintain smaller font size on mobile */
-                    }
-                }
-            `}</style>
         </div>
     );
 }

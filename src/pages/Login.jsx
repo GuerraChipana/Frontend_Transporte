@@ -28,19 +28,18 @@ const Login = () => {
             }
 
             const data = await response.json();
-            console.log(data);
-
             if (data.success) {
                 const userData = {
-                    id: data.user.ID,              
-                    dni: data.user.DNI,            
+                    id: data.user.ID,
+                    dni: data.user.DNI,
                     nombre: data.user.NOMBRE,
                     apellido: data.user.APELLIDO,
                     usuario: data.user.USUARIO,
+                    rol: data.user.ROL,
                     estado: data.user.ESTADO,
                 };
-                login(userData); 
-                navigate('/Dashboard/Bienvenida'); 
+                login(userData);
+                navigate('/Dashboard/Bienvenida');
             } else {
                 setError(data.message || 'Credenciales incorrectas.');
             }

@@ -77,7 +77,7 @@ function Propietarios() {
     event.preventDefault();
 
     // Verificar si el usuario está autenticado
-    console.log('Datos de usuario:', user);  
+    console.log('Datos de usuario:', user);
 
     if (!user || !user.id) {
       console.error('Usuario no autenticado o ID no disponible');
@@ -110,6 +110,14 @@ function Propietarios() {
           domicilio,
           idUsuario: user.id,
         });
+
+        // Check if DNI already exists
+        const existingPropietario = propietarios.find((propietario) => propietario.dni === dni);
+        if (existingPropietario) {
+          Swal.fire('Error', 'El DNI ya existe en otro propietario', 'error');
+          return;
+        }
+
         await axios.post('http://localhost:3002/api/propietarios', data, {
           headers: {
             'Content-Type': 'application/json',
@@ -127,7 +135,7 @@ function Propietarios() {
       setEditId(null);
     } catch (error) {
       console.error('Error al enviar el formulario:', error.message);
-      Swal.fire('Error!', 'Error al agregar o actualizar  el propietario.', 'error');
+      Swal.fire('Error', 'El DNI ya existe en otro propietario', 'error');
     }
   };
 
@@ -171,8 +179,8 @@ function Propietarios() {
           {error}
         </div>
       )}
-      <Table striped bordered hover className="table table-responsive">
-        <thead className="table-light">
+      <Table striped bordered hover>
+        <thead >
           <tr>
             <th>ID</th>
             <th>Nombre</th>
@@ -181,7 +189,7 @@ function Propietarios() {
             <th>Teléfono</th>
             <th>Domicilio</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -194,8 +202,8 @@ function Propietarios() {
                   <td>{propietario.nombre}</td>
                   <td>{propietario.apellido}</td>
                   <td>{propietario.dni}</td>
-                  <td>{propietario.telefono}</td>
-                  <td>{propietario.domicilio}</td>
+                  <td>{propietario.telefono ? propietario.telefono : 'Sin teléfono'}</td>
+                  <td>{propietario.domicilio ? propietario.domicilio : 'Sin domicilio'}</td>
                   <td>
                     <span className={`badge ${propietario.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
                       {propietario.estado ? 'Activo' : 'Inactivo'}
@@ -265,7 +273,15 @@ function Propietarios() {
                 className="form-control"
                 id="dni"
                 value={dni}
-                onChange={(e) => setDni(e.target.value)}
+                onChange={(e) => {
+                  const maxLength = 8;
+                  const inputValue = e.target.value;
+                  if (inputValue.length > maxLength) {
+                    e.target.value = inputValue.slice(0, maxLength);
+                  } else {
+                    setDni(e.target.value);
+                  }
+                }}
                 required
               />
             </Form.Group>
@@ -276,8 +292,15 @@ function Propietarios() {
                 className="form-control"
                 id="telefono"
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
-                required
+                onChange={(e) => {
+                  const maxLength = 9;
+                  const inputValue = e.target.value;
+                  if (inputValue.length > maxLength) {
+                    e.target.value = inputValue.slice(0, maxLength);
+                  } else {
+                    setTelefono(e.target.value);
+                  }
+                }}
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -288,15 +311,20 @@ function Propietarios() {
                 id="domicilio"
                 value={domicilio}
                 onChange={(e) => setDomicilio(e.target.value)}
-                required
               />
             </Form.Group>
-            <Button variant="primary" type="submit">
-              {editId ? 'Actualizar' : 'Agregar'}
-            </Button>
+            <div className="d-flex justify-content-end">
+              <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
+                Cancelar
+              </Button>
+              <Button variant="primary" type="submit">
+                {editId ? 'Actualizar' : 'Agregar'}
+              </Button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>
+
     </div>
   );
 }

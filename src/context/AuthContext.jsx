@@ -11,6 +11,7 @@ export const AuthProvider = ({ children }) => {
         nombre: '',
         apellido: '',
         usuario: '',
+        rol:'',
         estado: 0,
     });
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }) => {
             nombre: userData.nombre,
             apellido: userData.apellido,
             usuario: userData.usuario,
+            rol: userData.rol,
             estado: userData.estado,
         });
         setIsAuthenticated(true);
@@ -34,6 +36,7 @@ export const AuthProvider = ({ children }) => {
             nombre: '',
             apellido: '',
             usuario: '',
+            rol:'',
             estado: 0,
         });
         setIsAuthenticated(false);

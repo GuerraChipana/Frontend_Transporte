@@ -66,7 +66,7 @@ const SeguroVehicular = () => {
         id_usuario_modificacion: user.id,
       });
       Swal.fire('Éxito', `El seguro vehicular ha sido ${nuevoEstado === 1 ? 'activado' : 'desactivado'}.`, 'success');
-      obtenerSeguros(); // Vuelve a obtener los seguros para actualizar la lista
+      obtenerSeguros();
     } catch (error) {
       console.error('Error al cambiar el estado del seguro vehicular:', error);
       Swal.fire('Error', 'Hubo un problema al cambiar el estado del seguro vehicular.', 'error');
@@ -158,8 +158,8 @@ const SeguroVehicular = () => {
         </div>
       )}
 
-      <Table striped bordered hover responsive>
-        <thead>
+      <Table striped bordered hover responsive className="table table-responsive">
+        <thead className="table-light">
           <tr>
             <th>ID</th>
             <th>Aseguradora</th>
@@ -224,9 +224,14 @@ const SeguroVehicular = () => {
                 required
               />
             </Form.Group>
-            <Button variant="primary" type="submit">
-              {editId ? 'Actualizar' : 'Agregar'}
-            </Button>
+            <div className="d-flex justify-content-end">
+              <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
+                Cancelar
+              </Button>
+              <Button variant="primary" type="submit">
+                {editId ? 'Actualizar' : 'Agregar'}
+              </Button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>

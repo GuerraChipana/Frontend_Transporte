@@ -41,16 +41,16 @@ const Asociaciones = () => {
   }, 500);
 
   const handleEdit = (asociacion) => {
-    setEditId(asociacion.ID);
-    setNombre(asociacion.NOMBRE);
+    setEditId(asociacion.id);
+    setNombre(asociacion.nombre);
     setShowModal(true);
   };
 
   //CAMBIAR ESTADO
   const handleChangeEstado = async (asociacion) => {
-    const nuevoEstado = asociacion.ESTADO === 1 ? 0 : 1;
+    const nuevoEstado = asociacion.estado === 1 ? 0 : 1;
     try {
-      await axios.patch(`http://localhost:3002/api/asociaciones/${asociacion.ID}/estado`, {
+      await axios.patch(`http://localhost:3002/api/asociaciones/${asociacion.id}/estado`, {
         estado: nuevoEstado,
         id_usuario_modificacion: user.id,
       });
@@ -145,20 +145,20 @@ const Asociaciones = () => {
             <th>ID</th>
             <th>Nombre</th>
             <th>Estado</th>
-            <th>Acciones</th>
+            <th className="text-center">Acciones</th>
           </tr>
         </thead>
         <tbody>
           {filteredAsociaciones.length > 0 ? (
             filteredAsociaciones
-              .filter((asociacion) => (showInactive ? true : asociacion.ESTADO === 1))
+              .filter((asociacion) => (showInactive ? true : asociacion.estado === 1))
               .map((asociacion) => (
-                <tr key={asociacion.ID}>
-                  <td>{asociacion.ID}</td>
-                  <td>{asociacion.NOMBRE}</td>
+                <tr key={asociacion.id}>
+                  <td>{asociacion.id}</td>
+                  <td>{asociacion.nombre}</td>
                   <td>
-                    <span className={`badge ${asociacion.ESTADO === 1 ? 'bg-success' : 'bg-danger'}`}>
-                      {asociacion.ESTADO === 1 ? 'Activo' : 'Inactivo'}
+                    <span className={`badge ${asociacion.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
+                      {asociacion.estado === 1 ? 'Activo' : 'Inactivo'}
                     </span>
                   </td>
                   <td>
@@ -171,11 +171,11 @@ const Asociaciones = () => {
                         <FaEdit />
                       </Button>
                       <Button
-                        variant={asociacion.ESTADO === 1 ? 'danger' : 'success'}
+                        variant={asociacion.estado === 1 ? 'danger' : 'success'}
                         className="ms-2"
                         onClick={() => handleChangeEstado(asociacion)}
                       >
-                        {asociacion.ESTADO === 1 ? 'Desactivar' : 'Activar'}
+                        {asociacion.estado === 1 ? 'Desactivar' : 'Activar'}
                       </Button>
                     </div>
                   </td>
@@ -208,9 +208,14 @@ const Asociaciones = () => {
                 required
               />
             </Form.Group>
-            <Button variant="primary" type="submit">
-              {editId ? 'Actualizar' : 'Agregar'}
-            </Button>
+            <div className="d-flex justify-content-end">
+              <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
+                Cancelar
+              </Button>
+              <Button variant="primary" type="submit">
+                {editId ? 'Actualizar' : 'Agregar'}
+              </Button>
+            </div>
           </Form>
         </Modal.Body>
       </Modal>

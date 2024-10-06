@@ -1,180 +1,149 @@
-/* Estilo general para el contenedor del dashboard */
 .dashboard-container {
   display: flex;
-  height: 100vh; /* Asegura que el contenedor ocupe toda la altura de la ventana */
-  overflow: hidden; /* Evita el desplazamiento global en la página */
+  height: 100vh;
+  /* Ensure full height */
+  overflow: hidden;
+  /* Prevent scrolling */
+  flex-direction: row;
+  /* Mantener en fila por defecto */
+}
+.dashboard-content {
+  flex: 1;
+  padding: 0;
+  overflow-y: auto;
+  background-color: #ecf0f1;
+  height: 100vh;
 }
 
-/* Estilo para la barra lateral */
+
+/* Sidebar styles */
 .sidebar {
   flex-shrink: 0;
-  width: 250px; /* Ancho más amplio para un diseño más cómodo */
-  height: 100vh; /* Altura completa */
-  transition: width 0.8s ease, background-color 0.3s ease; /* Transiciones suaves */
+  width: 250px;
+  height: 100vh;
+  transition: width 0.5s ease, background-color 0.3s ease;
   overflow-y: auto;
-  background-color: #2c3e50; /* Azul oscuro profesional */
+  background-color: #2c3e50;
+  display: flex;
+  /* Asegura que la barra lateral use flex */
+  flex-direction: column;
+  /* Mantener los elementos en columna por defecto */
 }
 
 .sidebar.collapsed {
-  width: 5rem; /* Ancho reducido para la vista colapsada */
+  width: 5rem;
 }
 
 .nav-text {
   margin-left: 1rem;
-  color: #ecf0f1; /* Texto claro */
-  transition: opacity 0.3s ease; /* Transición para el texto */
+  color: #ecf0f1;
+  transition: opacity 0.3s ease;
 }
 
 .sidebar .nav-link {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
   color: #ecf0f1;
   padding: 10px 15px;
   border-radius: 4px;
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Transiciones para el fondo y la transformación */
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .sidebar .nav-link:hover {
-  background-color: #34495e; /* Hover en gris más claro */
+  background-color: #34495e;
   color: #ffffff;
-  transform: scale(1.05); /* Efecto de escala al pasar el ratón */
+  transform: scale(1.05);
 }
 
 .sidebar.collapsed .nav-text {
-  opacity: 0; /* Oculta el texto con una transición suave */
+  opacity: 0;
 }
 
 .sidebar.collapsed .nav-link {
   justify-content: center;
 }
 
-.sidebar .nav-link i {
-  font-size: 1.6rem; /* Aumenta el tamaño del ícono */
-  color: #bdc3c7; /* Color más claro para los iconos */
-  transition: color 0.3s ease; /* Transición para el color de los iconos */
-  margin-right: 0.75rem; /* Espaciado entre el ícono y el texto */
-}
-
-.sidebar .nav-link:hover i {
-  color: #ffffff; /* Color de los iconos en hover */
-}
-
-/* Estilo del botón de alternancia */
+/* Sidebar toggle button */
 .sidebar-toggle {
   text-align: center;
   padding: 10px;
   cursor: pointer;
 }
 
-.toggle-icon {
-  background-color: #34495e; /* Fondo oscuro para el botón */
-  border: 2px solid #2c3e50; /* Borde más oscuro */
-  padding: 5px;
-  border-radius: 50%; /* Forma circular para el botón */
-  display: inline-block;
-  width: 40px;
-  height: 40px;
-  text-align: center;
-  transition: background-color 0.3s ease, border-color 0.3s ease; /* Transiciones para el botón */
+/* Navbar (burger menu) visible only on small screens */
+.navbar-responsive {
+  display: none;
+  padding: 10px;
+  background-color: #2c3e50;
+  justify-content: flex-start;
 }
 
-.toggle-icon:hover {
-  background-color: #1b2c3d; /* Hover en el botón */
-  border-color: #ffffff;
-}
 
-/* Dropdown para el botón de usuario */
-.dropdown .dropdown-toggle {
-  color: #bdc3c7;
-  transition: color 0.3s ease; /* Transición para el color del dropdown */
-}
-
-.dropdown:hover .dropdown-toggle {
-  color: #ffffff;
-}
-
-/* Contenido principal */
-.dashboard-content {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto; /* Permitir desplazamiento solo en el contenido principal */
-  height: 100vh; /* Asegura que el contenido ocupe toda la altura de la ventana */
-  box-sizing: border-box; /* Asegura que el padding no afecte el cálculo de la altura */
-  background-color: #ecf0f1; /* Fondo claro para el contenido */
-}
-
-/* Sección de bienvenida */
-.welcome-section {
-  text-align: center;
-  margin-bottom: 20px;
-  padding: 20px;
-  border-radius: 8px;
-  background-color: #ffffff; /* Fondo blanco */
-  box-shadow: 0 4px 8px rgba(243, 221, 221, 0.1); /* Sombra más sutil */
-  transition: box-shadow 0.3s ease; /* Transición para la sombra */
-}
-
-.welcome-section:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada al pasar el ratón */
-}
-
-.logo-container {
-  margin-bottom: 20px;
-}
-
-.logo {
-  max-width: 120px; /* Ajusta el tamaño del logo según sea necesario */
-  height: auto;
-}
-
-.welcome-section h1 {
-  margin-top: 0;
-  color: #2c3e50; /* Color oscuro para el texto */
-}
-
-.company-info {
-  padding: 20px;
-  border-radius: 8px;
-  background-color: #ffffff; /* Fondo blanco */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra más sutil */
-  transition: box-shadow 0.3s ease; /* Transición para la sombra */
-}
-
-.company-info:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra más pronunciada al pasar el ratón */
-}
-
-.company-info h2 {
-  margin-top: 0;
-  color: #2c3e50; /* Color oscuro para el texto */
-}
-
-.company-info p {
-  margin: 5px 0;
-}
-
-/* Responsividad */
 @media (max-width: 768px) {
+  .navbar-responsive {
+    display: flex;
+  }
+
   .dashboard-container {
     flex-direction: column;
+    /* Cambiar a columna para pantallas pequeñas */
   }
 
   .sidebar {
-    position: fixed;
-    z-index: 100;
-    width: 100%; /* Ancho completo en dispositivos pequeños */
-    height: auto; /* Ajusta la altura del sidebar cuando se colapse */
-    max-height: 100vh; /* Limita la altura máxima para evitar sobrepasar la ventana */
-    overflow-y: auto; /* Permite el desplazamiento vertical en la barra lateral */
+    position: relative;
+
+    width: 100%;
+    /* Tomar todo el ancho */
+    height: 20%;
+    /* Ajustar a contenido */
+    display: flex;
+    /* Usar flex para alinear horizontalmente */
+    flex-direction: row;
+    /* Cambiar a fila para los elementos */
+    overflow-x: auto;
+    /* Permitir desplazamiento horizontal si es necesario */
   }
 
   .sidebar.collapsed {
-    width: 5rem; /* Ancho reducido para la vista colapsada */
+    width: 5rem;
   }
 
-  .dashboard-content {
-    padding: 10px; /* Ajusta el padding en dispositivos pequeños */
-    margin-top: 60px; /* Espacio para la barra lateral fija */
+  .nav {
+    display: flex;
+    /* Usamos flexbox */
+    flex-wrap: wrap;
+    /* Permite que los elementos se envuelvan en varias filas */
+    justify-content: center;
+    /* Centra los elementos en la fila */
+    padding: 0;
+    /* Elimina el padding por defecto de ul */
+    list-style: none;
+    /* Elimina los puntos de la lista */
   }
+
+  .nav.flex-column {
+    flex-direction: row;
+    justify-content: space-around;
+    /* Distribuir el espacio horizontalmente */
+    width: 100%;
+    /* Para que ocupe todo el ancho */
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+ .nav-item {
+    flex: 1 1 30%; /* Ajusta el tamaño de cada celda; 30% permitirá tres celdas por fila */
+    margin: 10px; /* Espaciado entre los elementos */
+    text-align: center; /* Centra el texto dentro de cada celda */
 }
+
+  .nav-link {
+    justify-content: center;
+    flex-direction: column;
+    /* Para mantener el ícono y el texto alineados en columnas */
+    text-align: center;
+  }
+
+}
+

@@ -3,24 +3,28 @@ body {
   font-family: 'Roboto', sans-serif;
   background-color: #f4f6f9; /* Fondo gris claro */
   color: #2c3e50; /* Texto oscuro */
+  margin: 0;
+  padding: 0;
 }
 
 h1 {
   color: #2980b9; /* Azul vibrante */
+  font-size: 2rem;
 }
 
-/* Botón de acción */
 button {
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   transition: all 0.3s ease;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
 }
 
 button:hover {
   transform: scale(1.05);
 }
 
-/* Botones de acción personalizados */
+/* Flexbox para iconos de botones */
 .icon-button {
   display: flex;
   align-items: center;
@@ -48,12 +52,12 @@ button:hover {
   background-color: #0487d3; /* Azul más oscuro */
 }
 
-.icon-delete {
-  background-color: #e74c3c; /* Rojo brillante */
+.icon-ver {
+  background-color: #4b4a2e; /* Azul claro */
 }
 
-.icon-delete:hover {
-  background-color: #c0392b; /* Rojo más oscuro */
+.icon-ver:hover {
+  background-color: #ada817; /* Azul más oscuro */
 }
 
 /* Tabla moderna con bordes y espaciado */
@@ -62,6 +66,8 @@ button:hover {
   border-spacing: 0 0.5rem; /* Espaciado entre filas */
   background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  width: 100%; /* Asegura que la tabla ocupe el 100% del ancho */
+  overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
 }
 
 .table th, .table td {
@@ -171,7 +177,48 @@ button:hover {
   transform: translateX(0); /* Movimiento cuando está inactivo */
 }
 
+/* Estilos para las badges */
+.badge {
+  display: inline-block;
+  padding: 0.5rem 0.8rem;
+  border-radius: 5rem;
+  font-size: 0.8 rem;
+  font-weight: bold;
+  text-align: center;
+  color: white; /* Texto blanco */
+}
+
+/* Badge de éxito */
+.bg-success {
+  background-color: #0dad3d; /* Verde éxito */
+}
+
+/* Badge de peligro */
+.bg-danger {
+  background-color: #dc3545; /* Rojo peligro */
+}
+/* Badge de curso */
+.bg-curso {
+  background-color: #ff4800; /* Amarillo */
+}
+
+/* Badge de vencido */
+.bg-vencido {
+  background-color: #ff0040; /* Naranja */
+}
+
+/* Opcional: efectos de hover */
+.badge:hover {
+  opacity: 0.8; /* Efecto de opacidad al pasar el mouse */
+}
+
 /* Responsive */
+@media (max-width: 1024px) {
+  h1 {
+    font-size: 1.75rem;
+  }
+}
+
 @media (max-width: 768px) {
   .icon-button {
     width: 2.8rem;
@@ -184,5 +231,38 @@ button:hover {
 
   .btn {
     padding: 0.5rem 1rem; /* Botones más pequeños */
+  }
+
+  h1 {
+    font-size: 1.5rem; /* Tamaño de fuente más pequeño para encabezados */
+  }
+
+  /* Ajuste de padding en modal */
+  .modal-body {
+    padding: 1rem;
+  }
+
+  /* Ajustes para badges */
+  .badge {
+    font-size: 0.8rem; /* Tamaño de fuente más pequeño */
+  }
+}
+
+@media (max-width: 480px) {
+  /* Ajustes adicionales para dispositivos muy pequeños */
+  h1 {
+    font-size: 1.25rem;
+  }
+
+  button {
+    font-size: 0.9rem; /* Tamaño de fuente más pequeño en botones */
+  }
+
+  .table th, .table td {
+    padding: 0.75rem; /* Padding más pequeño en celdas */
+  }
+
+  .badge {
+    padding: 0.4rem 0.8rem; /* Ajuste de padding en badges */
   }
 }

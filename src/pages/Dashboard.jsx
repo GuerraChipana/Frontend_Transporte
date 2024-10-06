@@ -1,81 +1,82 @@
-/* eslint-disable no-unused-vars */
-import React, { useContext, useState } from 'react';
+// eslint-disable-next-line no-unused-vars
+import React, { useState, useEffect, useContext } from 'react';
 import { Link, Outlet } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import '../style/Dashboard.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronLeft, faChevronRight, faHouse, faUser, faBuilding, faCar, faFileInvoice, faCog, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import { faBars, faHouse, faUser, faBuilding, faCar, faFileInvoice, faCog, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 function Dashboard() {
+    const { user } = useContext(AuthContext);
     const [collapsed, setCollapsed] = useState(false);
+    const [isResponsive] = useState(false);
+    const [, setUsuarios] = useState([]); // Se puede mantener si lo necesitas
+    const [links, setLinks] = useState([]);
 
+  
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:3002/api/usuario');
+                setUsuarios(response.data);
+            } catch (error) {
+                console.error('Error al obtener datos:', error);
+                Swal.fire('Error!', 'Hubo un problema al obtener los datos de usuarios.', 'error');
+            }
+        };
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const defaultLinks = [
+            { to: "Bienvenida", label: "Bienvenida", icon: faHouse },
+            { to: "Usuario", label: "Usuarios", icon: faUser }, // Link para Usuarios
+            { to: "Propietarios", label: "Propietarios", icon: faBuilding },
+            { to: "Vehiculos", label: "Vehículos", icon: faCar },
+            { to: "Seguro_vehicular", label: "Seguro vehicular", icon: faFileInvoice },
+            { to: "Asociaciones", label: "Asociaciones", icon: faFileInvoice },
+            { to: "#", label: "Registro del sistema", icon: faCog },
+            { to: "/login", label: "Salir", icon: faSignOutAlt }
+        ];
+
+        // Solo incluir el link "Usuario" si el rol es 1
+        if (user && user.rol === 1) {
+            setLinks(defaultLinks);
+        } else {
+            setLinks(defaultLinks.filter(link => link.to !== "Usuario")); // Elimina el link "Usuario" si el rol no es 1
+        }
+
+    }, [user]);
 
     const toggleSidebar = () => {
-        setCollapsed(!collapsed);
+        setCollapsed(prev => !prev);
     };
 
     return (
-        <div className={`dashboard-container ${collapsed ? 'sidebar-collapsed' : ''}`}>
-            <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-                <a href="#" className="d-block p-3 link-dark text-decoration-none" title="Icon-only" data-bs-toggle="tooltip" data-bs-placement="right">
-                    <svg className="bi" width="40" height="32"><use xlinkHref="#bootstrap" /></svg>
-                    <span className="visually-hidden">Icon-only</span>
-                </a>
-
-                <ul className="nav nav-pills nav-flush flex-column mb-auto text-start">
-                    <li className="nav-item">
-                        <Link to="Bienvenida" className="nav-link py-3 border-bottom" title="Bienvenida" data-bs-toggle="tooltip" data-bs-placement="right">
-                            <FontAwesomeIcon icon={faHouse} aria-label="Bienvenida" />
-                            {!collapsed && <span className="nav-text">Bienvenida</span>}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="Usuario" className="nav-link py-3 border-bottom" title="Usuarios" data-bs-toggle="tooltip" data-bs-placement="right">
-                            <FontAwesomeIcon icon={faUser} aria-label="Usuarios" />
-                            {!collapsed && <span className="nav-text">Usuarios</span>}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="Propietarios" className="nav-link py-3 border-bottom" title="Propietarios" data-bs-toggle="tooltip" data-bs-placement="right">
-                            <FontAwesomeIcon icon={faBuilding} aria-label="Propietarios" />
-                            {!collapsed && <span className="nav-text">Propietarios</span>}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="Vehiculos" className="nav-link py-3 border-bottom" title="Vehículos" data-bs-toggle="tooltip" data-bs-placement="right">
-                            <FontAwesomeIcon icon={faCar} aria-label="Vehiculos" />
-                            {!collapsed && <span className="nav-text">Vehículos</span>}
-                        </Link>
-                    </li>
-                    <li>
-                        <Link to="Seguro_vehicular" className="nav-link py-3 border-bottom" title="Seguro vehicular" data-bs-toggle="tooltip" data-bs-placement="right">
-                            <FontAwesomeIcon icon={faFileInvoice} aria-label="Seguro vehicular" />
-                            {!collapsed && <span className="nav-text">Seguro vehicular</span>}
-                        </Link>
-                    </li>
-                    <Link to="Asociaciones" className="nav-link py-3 border-bottom" title="Asociaciones" data-bs-toggle="tooltip" data-bs-placement="right">
-                        <FontAwesomeIcon icon={faFileInvoice} aria-label="Asociaciones" />
-                        {!collapsed && <span className="nav-text">Asociaciones</span>}
-                    </Link>
-                    <li>
-                        <Link to="#" className="nav-link py-3 border-bottom" title="Registro del sistema" data-bs-toggle="tooltip" data-bs-placement="right">
-                            <FontAwesomeIcon icon={faCog} aria-label="Registro del sistema" />
-                            {!collapsed && <span className="nav-text">Registro del sistema</span>}
-                        </Link>
-                    </li>
-                </ul>
-                <div className="sidebar-toggle" onClick={toggleSidebar}>
-                    <div className="toggle-icon">
-                        <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronLeft} size="lg" color="#fff" />
+        <div className={`dashboard-container ${collapsed && isResponsive ? 'sidebar-collapse-up' : collapsed ? 'sidebar-collapsed' : ''}`}>
+            <div className={`sidebar ${collapsed && isResponsive ? 'collapse-up' : collapsed ? 'collapsed' : ''}`}>
+                <nav className="d-flex justify-content-center align-items-center navbar navbar-responsive" style={{ height: '60px' }}>
+                    <div
+                        className="navbar-brand d-flex justify-content-center align-items-center"
+                        onClick={toggleSidebar}
+                        style={{ cursor: 'pointer', padding: '10px', paddingLeft: '25px', flexGrow: 1 }}
+                    >
+                        <FontAwesomeIcon icon={faBars} size="lg" color="#fff" />
                     </div>
-                </div>
-                <div className="dropdown border-top mt-auto">
-                    <a href="#" className="d-flex align-items-center justify-content-center p-3 text-decoration-none dropdown-toggle" id="dropdownUser3" data-bs-toggle="dropdown" aria-expanded="false">
-                        <FontAwesomeIcon icon={faUser} />
-                    </a>
-                    <ul className="dropdown-menu text-small shadow" aria-labelledby="dropdownUser3">
-                        <li><a className="dropdown-item" href="/login"><FontAwesomeIcon icon={faSignOutAlt} /> Salir</a></li>
-                    </ul>
-                </div>
+                </nav>
+
+                <ul className="nav flex-column">
+                    {links.map(({ to, label, icon }) => (
+                        <li key={to} className="nav-item" style={{ margin: '5px 0' }}>
+                            <Link to={to} className="nav-link" title={label}>
+                                <FontAwesomeIcon icon={icon} aria-label={label} />
+                                {!collapsed && <span className="nav-text">{label}</span>}
+                            </Link>
+                        </li>
+                    ))}
+                </ul>
             </div>
             <div className="dashboard-content">
                 <Outlet />
