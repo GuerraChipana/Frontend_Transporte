@@ -157,58 +157,57 @@ const SeguroVehicular = () => {
           {error}
         </div>
       )}
+      <div className="table-responsive" style={{ maxHeight: '90%', overflowY: 'scroll' }}>
+        <Table striped bordered hover responsive className="table table-responsive">
+          <thead className="table-light">
+            <tr>
+              <th>ID</th>
+              <th>Aseguradora</th>
+              <th>Estado</th>
+              <th className="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSeguros.length > 0 ? (
+              filteredSeguros.map((seguro) => (
+                <tr key={seguro.id}>
+                  <td>{seguro.id}</td>
+                  <td>{seguro.aseguradora}</td>
+                  <td>
+                    <span className={`badge ${seguro.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
+                      {seguro.estado === 1 ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="d-flex justify-content-center align-items-center">
+                      <Button
+                        className="icon-button icon-edit me-3" // Aumenté el margen derecho
+                        onClick={() => handleEdit(seguro)}
+                      >
+                        <FaEdit />
+                      </Button>
+                      <Button
+                        variant={seguro.estado === 1 ? 'danger' : 'success'}
+                        className="ms-2" // Clase de margen izquierdo para el botón
+                        onClick={() => handleChangeEstado(seguro)}
+                      >
+                        {seguro.estado === 1 ? 'Desactivar' : 'Activar'}
+                      </Button>
+                    </div>
 
-      <Table striped bordered hover responsive className="table table-responsive">
-        <thead className="table-light">
-          <tr>
-            <th>ID</th>
-            <th>Aseguradora</th>
-            <th>Estado</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredSeguros.length > 0 ? (
-            filteredSeguros.map((seguro) => (
-              <tr key={seguro.id}>
-                <td>{seguro.id}</td>
-                <td>{seguro.aseguradora}</td>
-                <td>
-                  <span className={`badge ${seguro.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
-                    {seguro.estado === 1 ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td>
-                  <div className="d-flex justify-content-center align-items-center">
-                    <Button
-                      className="icon-button icon-edit me-3" // Aumenté el margen derecho
-                      onClick={() => handleEdit(seguro)}
-                    >
-                      <FaEdit />
-                    </Button>
-                    <Button
-                      variant={seguro.estado === 1 ? 'danger' : 'success'}
-                      className="ms-2" // Clase de margen izquierdo para el botón
-                      onClick={() => handleChangeEstado(seguro)}
-                    >
-                      {seguro.estado === 1 ? 'Desactivar' : 'Activar'}
-                    </Button>
-                  </div>
-
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="text-center">
+                  No hay seguros vehiculares disponibles.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4" className="text-center">
-                No hay seguros vehiculares disponibles.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
-
-
+            )}
+          </tbody>
+        </Table>
+      </div>
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{editId ? 'Editar Seguro Vehicular' : 'Agregar Seguro Vehicular'}</Modal.Title>

@@ -4,7 +4,10 @@ import { Link, Outlet } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import '../style/Dashboard.css';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars, faHouse, faUser, faBuilding, faCar, faFileInvoice, faCog, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+    faBars, faHome, faUser, faBuilding, faClipboard,
+    faCar, faShieldAlt, faUsers, faSignOutAlt
+} from "@fortawesome/free-solid-svg-icons";
 import axios from 'axios';
 import Swal from 'sweetalert2';
 
@@ -12,10 +15,10 @@ function Dashboard() {
     const { user } = useContext(AuthContext);
     const [collapsed, setCollapsed] = useState(false);
     const [isResponsive] = useState(false);
-    const [, setUsuarios] = useState([]); // Se puede mantener si lo necesitas
+    const [, setUsuarios] = useState([]);
     const [links, setLinks] = useState([]);
 
-  
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -31,21 +34,21 @@ function Dashboard() {
 
     useEffect(() => {
         const defaultLinks = [
-            { to: "Bienvenida", label: "Bienvenida", icon: faHouse },
-            { to: "Usuario", label: "Usuarios", icon: faUser }, // Link para Usuarios
+            { to: "Bienvenida", label: "Bienvenida", icon: faHome },
+            { to: "Usuario", label: "Usuarios", icon: faUser },
             { to: "Propietarios", label: "Propietarios", icon: faBuilding },
             { to: "Vehiculos", label: "Vehículos", icon: faCar },
-            { to: "Seguro_vehicular", label: "Seguro vehicular", icon: faFileInvoice },
-            { to: "Asociaciones", label: "Asociaciones", icon: faFileInvoice },
-            { to: "#", label: "Registro del sistema", icon: faCog },
+            { to: "Seguro_vehicular", label: "Seguro vehicular", icon: faShieldAlt },
+            { to: "Asociaciones", label: "Asociaciones", icon: faUsers },
+            { to: "#", label: "Registro del sistema", icon: faClipboard },
             { to: "/login", label: "Salir", icon: faSignOutAlt }
         ];
 
-        // Solo incluir el link "Usuario" si el rol es 1
+
         if (user && user.rol === 1) {
             setLinks(defaultLinks);
         } else {
-            setLinks(defaultLinks.filter(link => link.to !== "Usuario")); // Elimina el link "Usuario" si el rol no es 1
+            setLinks(defaultLinks.filter(link => link.to !== "Usuario"));
         }
 
     }, [user]);

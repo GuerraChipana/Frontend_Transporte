@@ -1,14 +1,12 @@
-/* eslint-disable no-unused-vars */
+// eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect, useContext } from 'react';
-import axios from 'axios';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Table, Form } from 'react-bootstrap';
-import Swal from 'sweetalert2';
 import { FaEdit } from 'react-icons/fa';
-import '../style/Secciones.css';
 import debounce from 'lodash/debounce';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { AuthContext } from '../context/AuthContext';
-
+import { obtenerPropietarios, handleChangeEstado, handleSubmit } from '../log/PropietariosLogica';
+import '../style/Secciones.css';
 
 function Propietarios() {
   const { user } = useContext(AuthContext);
@@ -19,31 +17,19 @@ function Propietarios() {
   const [dni, setDni] = useState('');
   const [telefono, setTelefono] = useState('');
   const [domicilio, setDomicilio] = useState('');
-  const [estado, setEstado] = useState(true);
   const [editId, setEditId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState(null);
-  const [searchDni, setSearchDni] = useState('');
   const [showInactive, setShowInactive] = useState(false);
 
+  // Ejecutamos solo al montar el componente
   useEffect(() => {
-    obtenerPropietarios();
+    obtenerPropietarios(setPropietarios, setFilteredPropietarios, setError);
   }, []);
-
-  const obtenerPropietarios = async () => {
-    try {
-      const response = await axios.get('http://localhost:3002/api/propietarios');
-      setPropietarios(response.data);
-      setFilteredPropietarios(response.data);
-    } catch (error) {
-      setError('Error al obtener datos de Propietarios');
-      Swal.fire('Error', 'Error al obtener datos de Propietarios', 'error');
-    }
-  };
 
   const handleSearchDni = debounce((searchTerm) => {
     const filtered = propietarios.filter((propietario) =>
-      propietario.dni.toLowerCase().includes(searchTerm.toLowerCase())
+      propietario.dni.toString().includes(searchTerm)
     );
     setFilteredPropietarios(filtered);
   }, 500);
@@ -55,88 +41,7 @@ function Propietarios() {
     setDni(propietario.dni);
     setTelefono(propietario.telefono);
     setDomicilio(propietario.domicilio);
-    setEstado(propietario.estado);
     setShowModal(true);
-  };
-
-  const handleChangeEstado = async (propietario) => {
-    const nuevoEstado = propietario.estado === 1 ? 0 : 1;
-    try {
-      await axios.patch(`http://localhost:3002/api/propietarios/${propietario.id}/estado`, {
-        estado: nuevoEstado,
-        id_usuario_modificacion: user.id,
-      });
-      obtenerPropietarios();
-      Swal.fire('Éxito', 'Estado del propietario actualizado', 'success');
-    } catch (error) {
-      Swal.fire('Error', 'Error al cambiar el estado del propietario', 'error');
-    }
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    // Verificar si el usuario está autenticado
-    console.log('Datos de usuario:', user);
-
-    if (!user || !user.id) {
-      console.error('Usuario no autenticado o ID no disponible');
-      Swal.fire('Error', 'Usuario no autenticado o ID no disponible', 'error');
-      return;
-    }
-
-    try {
-      if (editId) {
-        const data = JSON.stringify({
-          nombre,
-          apellido,
-          dni,
-          telefono,
-          domicilio,
-          id_usuario_modificacion: user.id,
-        });
-        await axios.put(`http://localhost:3002/api/propietarios/${editId}`, data, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        Swal.fire('Éxito', 'Propietario actualizado exitosamente', 'success');
-      } else {
-        const data = JSON.stringify({
-          nombre,
-          apellido,
-          dni,
-          telefono,
-          domicilio,
-          idUsuario: user.id,
-        });
-
-        // Check if DNI already exists
-        const existingPropietario = propietarios.find((propietario) => propietario.dni === dni);
-        if (existingPropietario) {
-          Swal.fire('Error', 'El DNI ya existe en otro propietario', 'error');
-          return;
-        }
-
-        await axios.post('http://localhost:3002/api/propietarios', data, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        Swal.fire('Éxito', 'Asociación agregada exitosamente', 'success');
-      }
-      obtenerPropietarios();
-      setShowModal(false);
-      setNombre('');
-      setApellido('');
-      setDni('');
-      setTelefono('');
-      setDomicilio('');
-      setEditId(null);
-    } catch (error) {
-      console.error('Error al enviar el formulario:', error.message);
-      Swal.fire('Error', 'El DNI ya existe en otro propietario', 'error');
-    }
   };
 
   const resetForm = () => {
@@ -146,6 +51,43 @@ function Propietarios() {
     setTelefono('');
     setDomicilio('');
     setEditId(null);
+  };
+
+  // Función actualizada para manejar el submit y luego actualizar la tabla automáticamente
+  const handleSubmitForm = async (event) => {
+    event.preventDefault();
+    try {
+      await handleSubmit(
+        event,
+        editId,
+        nombre,
+        apellido,
+        dni,
+        telefono,
+        domicilio,
+        user,
+        obtenerPropietarios,
+        propietarios,
+        resetForm,
+        setShowModal,
+        setNombre,
+        setApellido,
+        setDni,
+        setTelefono,
+        setDomicilio,
+        setEditId,
+        filteredPropietarios,
+        setPropietarios,
+        setFilteredPropietarios,
+        setError
+      );
+      obtenerPropietarios(setPropietarios, setFilteredPropietarios, setError);
+      resetForm();
+      setShowModal(false);
+      // eslint-disable-next-line no-unused-vars
+    } catch (error) {
+      setError('Ocurrió un error al agregar o actualizar el propietario');
+    }
   };
 
   return (
@@ -165,8 +107,10 @@ function Propietarios() {
           type="text"
           placeholder="Buscar por DNI"
           className="w-50"
-          onChange={(e) => handleSearchDni(e.target.value)}
+          maxLength={8}
+          onChange={(e) => handleSearchDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
         />
+
         <Button
           variant="secondary"
           onClick={() => setShowInactive(!showInactive)}
@@ -179,77 +123,88 @@ function Propietarios() {
           {error}
         </div>
       )}
-      <Table striped bordered hover>
-        <thead >
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>DNI</th>
-            <th>Teléfono</th>
-            <th>Domicilio</th>
-            <th>Estado</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredPropietarios.length > 0 ? (
-            filteredPropietarios
-              .filter((propietario) => (showInactive ? true : propietario.estado === 1))
-              .map((propietario) => (
-                <tr key={propietario.id}>
-                  <td>{propietario.id}</td>
-                  <td>{propietario.nombre}</td>
-                  <td>{propietario.apellido}</td>
-                  <td>{propietario.dni}</td>
-                  <td>{propietario.telefono ? propietario.telefono : 'Sin teléfono'}</td>
-                  <td>{propietario.domicilio ? propietario.domicilio : 'Sin domicilio'}</td>
-                  <td>
-                    <span className={`badge ${propietario.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
-                      {propietario.estado ? 'Activo' : 'Inactivo'}
-                    </span>
-                  </td>
-                  <td>
-                    <div className="d-flex justify-content-around align-items-center">
-                      <Button
-                        className="icon-button icon-edit"
-                        onClick={() => handleEdit(propietario)}
-                        variant='secondary'
-                      >
-                        <FaEdit />
-                      </Button>
-                      <Button
-                        variant={propietario.estado === 1 ? 'danger' : 'success'}
-                        className='ms-2'
-                        onClick={() => handleChangeEstado(propietario)}
-                      >
-                        {propietario.estado === 1 ? 'Desactivar' : 'Activar'}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))) : (
-            <tr>
-              <td colSpan="4" className="text-center">
-                No hay propietarios disponibles.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+      <div className="table-responsive" style={{ maxHeight: '83%', overflowY: 'scroll' }}>
+        <Table>
+          <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>DNI</th>
+              <th>Teléfono</th>
+              <th>Domicilio</th>
+              <th>Estado</th>
+              <th className="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredPropietarios.length > 0 ? (
+              filteredPropietarios
+                .filter((propietario) => (showInactive ? true : propietario.estado === 1))
+                .map((propietario) => (
+                  <tr key={propietario.id}>
+                    <td>{propietario.id}</td>
+                    <td>{propietario.nombre}</td>
+                    <td>{propietario.apellido}</td>
+                    <td>{propietario.dni}</td>
+                    <td>{propietario.telefono ? propietario.telefono : 'Sin teléfono'}</td>
+                    <td>{propietario.domicilio ? propietario.domicilio : 'Sin domicilio'}</td>
+                    <td>
+                      <span className={`badge ${propietario.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
+                        {propietario.estado ? 'Activo' : 'Inactivo'}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="d-flex justify-content-around align-items-center">
+                        <Button
+                          className="icon-button icon-edit"
+                          onClick={() => handleEdit(propietario)}
+                        >
+                          <FaEdit />
+                        </Button>
+                        <Button
+                          variant={propietario.estado === 1 ? 'danger' : 'success'}
+                          className='ms-2'
+                          onClick={() => handleChangeEstado(
+                            propietario,
+                            user,
+                            obtenerPropietarios,
+                            setPropietarios,
+                            setFilteredPropietarios,
+                            setError
+                          )}
+                        >
+                          {propietario.estado === 1 ? 'Desactivar' : 'Activar'}
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="text-center">
+                  No se encontraron propietarios
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+      </div>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>{editId ? 'Editar Propietario' : 'Agregar Propietario'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmitForm}>
             <Form.Group className="mb-3">
               <Form.Label>Nombre</Form.Label>
               <Form.Control
                 type="text"
                 className="form-control"
                 id="nombre"
+                placeholder="Ingrese nombre"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 required
@@ -261,6 +216,7 @@ function Propietarios() {
                 type="text"
                 className="form-control"
                 id="apellido"
+                placeholder="Ingrese apellido"
                 value={apellido}
                 onChange={(e) => setApellido(e.target.value)}
                 required
@@ -269,21 +225,17 @@ function Propietarios() {
             <Form.Group className="mb-3">
               <Form.Label>DNI</Form.Label>
               <Form.Control
-                type="number"
-                className="form-control"
+                type="text"
+                className={`form-control ${dni.length !== 8 && dni ? 'is-invalid' : ''}`}
+                placeholder="Ingrese DNI"
                 id="dni"
                 value={dni}
-                onChange={(e) => {
-                  const maxLength = 8;
-                  const inputValue = e.target.value;
-                  if (inputValue.length > maxLength) {
-                    e.target.value = inputValue.slice(0, maxLength);
-                  } else {
-                    setDni(e.target.value);
-                  }
-                }}
+                onChange={(e) => setDni(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                onBlur={() => dni.length !== 8 && setDni('')}
                 required
+                style={{ appearance: 'none', MozAppearance: 'textfield' }}
               />
+              {dni.length !== 8 && dni && <div className="invalid-feedback">DNI debe tener 8 dígitos.</div>}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Telefono</Form.Label>
@@ -291,6 +243,7 @@ function Propietarios() {
                 type="number"
                 className="form-control"
                 id="telefono"
+                placeholder="Ingrese teléfono"
                 value={telefono}
                 onChange={(e) => {
                   const maxLength = 9;
@@ -308,23 +261,18 @@ function Propietarios() {
               <Form.Control
                 type="text"
                 className="form-control"
+                placeholder="Ingrese domicilio"
                 id="domicilio"
                 value={domicilio}
                 onChange={(e) => setDomicilio(e.target.value)}
               />
             </Form.Group>
-            <div className="d-flex justify-content-end">
-              <Button variant="secondary" onClick={() => setShowModal(false)} className="me-2">
-                Cancelar
-              </Button>
-              <Button variant="primary" type="submit">
-                {editId ? 'Actualizar' : 'Agregar'}
-              </Button>
-            </div>
+            <Button variant="primary" type="submit">
+              {editId ? 'Actualizar' : 'Agregar'}
+            </Button>
           </Form>
         </Modal.Body>
       </Modal>
-
     </div>
   );
 }

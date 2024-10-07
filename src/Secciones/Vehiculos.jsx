@@ -377,72 +377,72 @@ const Vehiculos = () => {
           </div>
         )
       }
-
-      <Table striped bordered hover responsive size='sm'>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Placa</th>
-            <th>Marca</th>
-            <th>Aseguradora</th>
-            <th>Seguro</th>
-            <th>Asociación</th>
-            <th>Estado</th>
-            <th className="text-center">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredVehiculos.length > 0 ? (
-            filteredVehiculos.map((vehiculo) => (
-              <tr key={vehiculo.ID}>
-                <td>{vehiculo.ID}</td>
-                <td>{vehiculo.PLACA}</td>
-                <td>{vehiculo.MARCA}</td>
-                <td>{vehiculo.SEGURO_NOMBRE || "Sin Seguro"}</td>
-                <td>
-                  {new Date(vehiculo.FECHA_VIGENCIA_HASTA.split('/').reverse().join('-')) >= new Date() ? (
-                    <span className="badge bg-curso">En curso</span>
-                  ) : (
-                    <span className="badge bg-vencido">Vencido</span>
-                  )}
-                </td>
-                <td>{vehiculo.ASOCIACION_NOMBRE || "Sin Asociación"}</td>
-                <td>
-                  <span className={`badge ${vehiculo.ESTADO === 1 ? 'bg-success' : 'bg-danger'}`}>
-                    {vehiculo.ESTADO === 1 ? 'Activo' : 'Inactivo'}
-                  </span>
-                </td>
-                <td>
-                  <div className="d-flex flex-column align-items-center">
-                    <div className="d-flex justify-content-center mb-1">
-                      <Button variant="info" className="icon-button icon-ver me-3" onClick={() => handleVerVehiculo(vehiculo)}>
-                        <i className="fas fa-eye"></i>
-                      </Button>
-                      <Button className="icon-button icon-edit" onClick={() => handleEditarVehiculo(vehiculo)}>
-                        <FaEdit />
+      <div className="table-responsive" style={{ maxHeight: '83%', overflowY: 'scroll' }}>
+        <Table >
+          <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
+            <tr>
+              <th>ID</th>
+              <th>Placa</th>
+              <th>Marca</th>
+              <th>Aseguradora</th>
+              <th>Seguro</th>
+              <th>Asociación</th>
+              <th>Estado</th>
+              <th className="text-center">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredVehiculos.length > 0 ? (
+              filteredVehiculos.map((vehiculo) => (
+                <tr key={vehiculo.ID}>
+                  <td>{vehiculo.ID}</td>
+                  <td>{vehiculo.PLACA}</td>
+                  <td>{vehiculo.MARCA}</td>
+                  <td>{vehiculo.SEGURO_NOMBRE || "Sin Seguro"}</td>
+                  <td>
+                    {new Date(vehiculo.FECHA_VIGENCIA_HASTA.split('/').reverse().join('-')) >= new Date() ? (
+                      <span className="badge bg-curso">En curso</span>
+                    ) : (
+                      <span className="badge bg-vencido">Vencido</span>
+                    )}
+                  </td>
+                  <td>{vehiculo.ASOCIACION_NOMBRE || "Sin Asociación"}</td>
+                  <td>
+                    <span className={`badge ${vehiculo.ESTADO === 1 ? 'bg-success' : 'bg-danger'}`}>
+                      {vehiculo.ESTADO === 1 ? 'Activo' : 'Inactivo'}
+                    </span>
+                  </td>
+                  <td>
+                    <div className="d-flex flex-column align-items-center">
+                      <div className="d-flex justify-content-center mb-1">
+                        <Button variant="info" className="icon-button icon-ver me-3" onClick={() => handleVerVehiculo(vehiculo)}>
+                          <i className="fas fa-eye"></i>
+                        </Button>
+                        <Button className="icon-button icon-edit" onClick={() => handleEditarVehiculo(vehiculo)}>
+                          <FaEdit />
+                        </Button>
+                      </div>
+                      <Button
+                        variant={vehiculo.ESTADO === 1 ? 'danger' : 'success'}
+                        className="ms-2"
+                        onClick={() => handleChangeEstado({ id: vehiculo.ID, ESTADO: vehiculo.ESTADO })}
+                      >
+                        {vehiculo.ESTADO === 1 ? 'Desactivar' : 'Activar'}
                       </Button>
                     </div>
-                    <Button
-                      variant={vehiculo.ESTADO === 1 ? 'danger' : 'success'}
-                      className="ms-2"
-                      onClick={() => handleChangeEstado({ id: vehiculo.ID, ESTADO: vehiculo.ESTADO })}
-                    >
-                      {vehiculo.ESTADO === 1 ? 'Desactivar' : 'Activar'}
-                    </Button>
-                  </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="8" className="text-center">
+                  No hay vehículos disponibles.
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="8" className="text-center">
-                No hay vehículos disponibles.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </Table>
-
+            )}
+          </tbody>
+        </Table>
+      </div>
       <Modal show={showModalAgregar} onHide={() => setShowModalAgregar(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Agregar Vehículo</Modal.Title>

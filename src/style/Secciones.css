@@ -1,14 +1,17 @@
 /* General Styles */
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #f4f6f9; /* Fondo gris claro */
-  color: #2c3e50; /* Texto oscuro */
+  background-color: #f4f6f9;
+  /* Fondo gris claro */
+  color: #2c3e50;
+  /* Texto oscuro */
   margin: 0;
   padding: 0;
 }
 
 h1 {
-  color: #2980b9; /* Azul vibrante */
+  color: #2980b9;
+  /* Azul vibrante */
   font-size: 2rem;
 }
 
@@ -45,51 +48,75 @@ button:hover {
 }
 
 .icon-edit {
-  background-color: #0c6294; /* Azul claro */
+  background-color: #0c6294;
+  /* Azul claro */
 }
 
 .icon-edit:hover {
-  background-color: #0487d3; /* Azul más oscuro */
+  background-color: #0487d3;
+  /* Azul más oscuro */
 }
 
 .icon-ver {
-  background-color: #4b4a2e; /* Azul claro */
+  background-color: #4b4a2e;
+  /* Azul claro */
 }
 
 .icon-ver:hover {
-  background-color: #ada817; /* Azul más oscuro */
+  background-color: #ada817;
+  /* Azul más oscuro */
 }
 
 /* Tabla moderna con bordes y espaciado */
 .table {
   border-collapse: separate;
-  border-spacing: 0 0.5rem; /* Espaciado entre filas */
+  border-spacing: 0 0.5rem;
+  /* Espaciado entre filas */
   background-color: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  width: 100%; /* Asegura que la tabla ocupe el 100% del ancho */
-  overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
+  width: 100%;
+  /* Asegura que la tabla ocupe el 100% del ancho */
+  overflow-x: auto;
+  /* Permite desplazamiento horizontal en pantallas pequeñas */
 }
 
-.table th, .table td {
+.table-responsive {
+  max-height: 800px;
+  overflow-y: auto;
+}
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  background-color: rgb(7, 0, 99);
+  z-index: 1;
+}
+
+.table th,
+.table td {
   padding: 1rem;
   vertical-align: middle;
-  border: none; /* Sin bordes internos */
+  border: none;
+  /* Sin bordes internos */
 }
 
 .table th {
-  background-color: #3498db; /* Color de encabezado */
+  background-color: #3498db;
+  /* Color de encabezado */
   color: white;
   font-weight: bold;
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-  background-color: #ecf0f1; /* Fila alternante gris claro */
+  background-color: #ecf0f1;
+  /* Fila alternante gris claro */
 }
 
 /* Estilos del modal */
 .modal-content {
   border-radius: 8px;
-  background-color: #ffffff; /* Fondo blanco */
+  background-color: #ffffff;
+  /* Fondo blanco */
   color: #2c3e50;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
@@ -150,11 +177,13 @@ button:hover {
 }
 
 .custom-switch.active {
-  background-color: #0ba138; /* Verde para activo */
+  background-color: #0ba138;
+  /* Verde para activo */
 }
 
 .custom-switch.inactive {
-  background-color: #ff0019; /* Rojo para inactivo */
+  background-color: #ff0019;
+  /* Rojo para inactivo */
 }
 
 .custom-switch:before {
@@ -170,11 +199,13 @@ button:hover {
 }
 
 .custom-switch.active:before {
-  transform: translateX(23px); /* Movimiento cuando está activo */
+  transform: translateX(23px);
+  /* Movimiento cuando está activo */
 }
 
 .custom-switch.inactive:before {
-  transform: translateX(0); /* Movimiento cuando está inactivo */
+  transform: translateX(0);
+  /* Movimiento cuando está inactivo */
 }
 
 /* Estilos para las badges */
@@ -185,31 +216,38 @@ button:hover {
   font-size: 0.8 rem;
   font-weight: bold;
   text-align: center;
-  color: white; /* Texto blanco */
+  color: white;
+  /* Texto blanco */
 }
 
 /* Badge de éxito */
 .bg-success {
-  background-color: #0dad3d; /* Verde éxito */
+  background-color: #0dad3d;
+  /* Verde éxito */
 }
 
 /* Badge de peligro */
 .bg-danger {
-  background-color: #dc3545; /* Rojo peligro */
+  background-color: #dc3545;
+  /* Rojo peligro */
 }
+
 /* Badge de curso */
 .bg-curso {
-  background-color: #ff4800; /* Amarillo */
+  background-color: #ff4800;
+  /* Amarillo */
 }
 
 /* Badge de vencido */
 .bg-vencido {
-  background-color: #ff0040; /* Naranja */
+  background-color: #ff0040;
+  /* Naranja */
 }
 
 /* Opcional: efectos de hover */
 .badge:hover {
-  opacity: 0.8; /* Efecto de opacidad al pasar el mouse */
+  opacity: 0.8;
+  /* Efecto de opacidad al pasar el mouse */
 }
 
 /* Responsive */
@@ -226,15 +264,18 @@ button:hover {
   }
 
   .table {
-    font-size: 0.9rem; /* Ajusta el tamaño de la fuente */
+    font-size: 0.9rem;
+    /* Ajusta el tamaño de la fuente */
   }
 
   .btn {
-    padding: 0.5rem 1rem; /* Botones más pequeños */
+    padding: 0.5rem 1rem;
+    /* Botones más pequeños */
   }
 
   h1 {
-    font-size: 1.5rem; /* Tamaño de fuente más pequeño para encabezados */
+    font-size: 1.5rem;
+    /* Tamaño de fuente más pequeño para encabezados */
   }
 
   /* Ajuste de padding en modal */
@@ -244,25 +285,31 @@ button:hover {
 
   /* Ajustes para badges */
   .badge {
-    font-size: 0.8rem; /* Tamaño de fuente más pequeño */
+    font-size: 0.8rem;
+    /* Tamaño de fuente más pequeño */
   }
 }
 
 @media (max-width: 480px) {
+
   /* Ajustes adicionales para dispositivos muy pequeños */
   h1 {
     font-size: 1.25rem;
   }
 
   button {
-    font-size: 0.9rem; /* Tamaño de fuente más pequeño en botones */
+    font-size: 0.9rem;
+    /* Tamaño de fuente más pequeño en botones */
   }
 
-  .table th, .table td {
-    padding: 0.75rem; /* Padding más pequeño en celdas */
+  .table th,
+  .table td {
+    padding: 0.75rem;
+    /* Padding más pequeño en celdas */
   }
 
   .badge {
-    padding: 0.4rem 0.8rem; /* Ajuste de padding en badges */
+    padding: 0.4rem 0.8rem;
+    /* Ajuste de padding en badges */
   }
 }

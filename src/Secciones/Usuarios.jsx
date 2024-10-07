@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // eslint-disable-next-line no-unused-vars
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
@@ -16,36 +17,28 @@ function Usuario() {
   const [nombre, setNombre] = useState('');
   const [apellido, setApellido] = useState('');
   const [usuario, setUsuario] = useState('');
-  const [contrasena, setContrasena] = useState('');
+  const [contrasenaActual, setContrasenaActual] = useState('');
+  const [nuevaContrasena, setNuevaContrasena] = useState('');
+  const [confirmarContrasena, setConfirmarContrasena] = useState('');
   const [editId, setEditId] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showEditPasswordModal, setShowEditPasswordModal] = useState(false);
   const [searchDni, setSearchDni] = useState('');
   const [showInactive, setShowInactive] = useState(false);
-  const [rol, setRol] = useState(1); // Default to superadministrador
+  const [rol, setRol] = useState(1);
+  const [editDni, setEditDni] = useState('');
+  const [editNombre, setEditNombre] = useState('');
+  const [editApellido, setEditApellido] = useState('');
+  const [editRol, setEditRol] = useState(1);
 
+  // Fetch data on mount
   useEffect(() => {
     fetchData();
   }, []);
 
+  // Filter users when search or showInactive changes
   useEffect(() => {
-    const filterUsuarios = () => {
-      let filtered = usuarios;
-
-      if (searchDni.trim() !== '') {
-        filtered = filtered.filter((usuario) =>
-          String(usuario.dni).includes(searchDni.trim())
-        );
-      }
-
-      if (!showInactive) {
-        filtered = filtered.filter((usuario) => usuario.estado === 1);
-      }
-
-      setFilteredUsuarios(filtered);
-    };
-
     filterUsuarios();
   }, [searchDni, usuarios, showInactive]);
 
@@ -61,33 +54,51 @@ function Usuario() {
     }
   };
 
+  const filterUsuarios = () => {
+    let filtered = usuarios;
+
+    if (searchDni.trim() !== '') {
+      filtered = filtered.filter((usuario) =>
+        String(usuario.dni).includes(searchDni.trim())
+      );
+    }
+
+    if (!showInactive) {
+      filtered = filtered.filter((usuario) => usuario.estado === 1);
+    }
+
+    setFilteredUsuarios(filtered);
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validación simple de contraseña
+    if (nuevaContrasena !== confirmarContrasena) {
+      Swal.fire('Error!', 'Las contraseñas no coinciden.', 'error');
+      return;
+    }
+
     try {
       const payload = {
-        dni,
-        nombre,
-        apellido,
-        usuario,
-        contrasena,
-        rol,
-        idUsuarioCreador: user.id 
+        dni, nombre, apellido, usuario, contrasena: nuevaContrasena,
+        rol, idUsuarioCreador: user.id,
       };
 
-
-      console.log(payload);
-
       if (editId) {
+        // Editar usuario
         await axios.put(`http://localhost:3002/api/usuario/info/${editId}`, {
           ...payload,
-          id_usuario_modificacion: user.id,
+          idUsuarioModificador: user.id,
         });
         Swal.fire('Actualizado!', 'El usuario ha sido actualizado.', 'success');
       } else {
+        // Crear nuevo usuario
         await axios.post('http://localhost:3002/api/usuario', payload);
         Swal.fire('Agregado!', 'El usuario ha sido agregado.', 'success');
       }
+
       resetForm();
       setShowModal(false);
       fetchData();
@@ -97,12 +108,13 @@ function Usuario() {
     }
   };
 
-
   const handleEditSubmit = async (e) => {
     e.preventDefault();
-
     try {
-      const payload = { dni, nombre, apellido, rol, idUsuarioModificador: user.id };
+      const payload = {
+        dni: editDni, nombre: editNombre, apellido: editApellido,
+        rol: editRol, idUsuarioModificador: user.id,
+      };
 
       await axios.put(`http://localhost:3002/api/usuario/info/${editId}`, payload);
       Swal.fire('Actualizado!', 'El usuario ha sido actualizado.', 'success');
@@ -117,14 +129,26 @@ function Usuario() {
   const handleEditPassword = (usuario) => {
     setEditId(usuario.id);
     setUsuario(usuario.usuario);
-    setContrasena(''); // Reset password field
+    setNuevaContrasena('');
+    setConfirmarContrasena('');
     setShowEditPasswordModal(true);
   };
 
   const handleSubmitPassword = async (e) => {
     e.preventDefault();
+
+    if (nuevaContrasena !== confirmarContrasena) {
+      Swal.fire('Error!', 'Las contraseñas no coinciden.', 'error');
+      return;
+    }
+
     try {
-      const payload = { usuario, contrasena, idUsuarioModificador: user.id };
+      const payload = {
+        usuario: usuario, contrasenaActual: contrasenaActual,
+        contrasenaNueva: nuevaContrasena, contrasenaConfirmacion: confirmarContrasena,
+        idUsuarioModificador: user.id,
+      };
+
       await axios.put(`http://localhost:3002/api/usuario/credenciales/${editId}`, payload);
       Swal.fire('Actualizado!', 'El usuario y contraseña han sido actualizados.', 'success');
       setShowEditPasswordModal(false);
@@ -139,8 +163,7 @@ function Usuario() {
     const newEstado = usuario.estado === 1 ? 0 : 1;
     try {
       await axios.patch(`http://localhost:3002/api/usuario/${usuario.id}/estado`, {
-        estado: newEstado,
-        idUsuarioModificador: user.id,
+        estado: newEstado, idUsuarioModificador: user.id,
       });
       Swal.fire('Estado Actualizado!', `El usuario ha sido ${newEstado === 1 ? 'activado' : 'desactivado'}.`, 'success');
       fetchData();
@@ -155,9 +178,10 @@ function Usuario() {
     setNombre('');
     setApellido('');
     setUsuario('');
-    setContrasena('');
+    setNuevaContrasena('');
+    setConfirmarContrasena('');
     setEditId(null);
-    setRol(1); // Resetear a superadministrador
+    setRol(1);
   };
 
   const handleSearchDni = debounce((value) => {
@@ -168,109 +192,101 @@ function Usuario() {
     <div className="container-fluid">
       <h1 className="text-center mb-4">Usuarios</h1>
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <Button
-          variant="primary"
-          onClick={() => {
-            resetForm();
-            setShowModal(true);
-          }}
-        >
+        <Button variant="primary" onClick={() => { resetForm(); setShowModal(true); }}  >
           Agregar Usuario
         </Button>
-        <Form.Control
-          type="text"
-          placeholder="Buscar por DNI"
-          className="w-50"
-          onChange={(e) => handleSearchDni(e.target.value)}
-        />
-        <Button
-          variant="secondary"
-          onClick={() => setShowInactive(!showInactive)}
-        >
+        <Form.Control type="text" placeholder="Buscar por DNI" className="w-50"
+          onChange={(e) => handleSearchDni(e.target.value)} />
+        <Button variant="secondary" onClick={() => setShowInactive(!showInactive)}>
           {showInactive ? 'Ocultar Inactivos' : 'Ver Inactivos'}
         </Button>
       </div>
-
-      <Table striped bordered hover className="table table-responsive">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Apellido</th>
-            <th>DNI</th>
-            <th>Usuario</th>
-            <th>Estado</th>
-            <th>Rol</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredUsuarios.map((usuario) => (
-            <tr key={usuario.id}>
-              <td>{usuario.id}</td>
-              <td>{usuario.nombre}</td>
-              <td>{usuario.apellido}</td>
-              <td>{usuario.dni}</td>
-              <td>{usuario.usuario}</td>
-              <td>
-                <span className={`badge ${usuario.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
-                  {usuario.estado === 1 ? 'Activo' : 'Inactivo'}
-                </span>
-              </td>
-              <td>{usuario.rol === 1 ? 'Superadministrador' : 'Administrador'}</td>
-              <td>
-                <div className="d-flex justify-content align-items-center">
-                  <Button
-                    className="icon-button icon-edit me-2"
-                    onClick={() => {
-                      setEditId(usuario.id);
-                      setDni(usuario.dni);
-                      setNombre(usuario.nombre);
-                      setApellido(usuario.apellido);
-                      setRol(usuario.rol);
-                      setShowEditModal(true);
-                    }}
-                  >
-                    <FaEdit />
-                  </Button>
-
-                  <Button
-                    className="icon-button icon-key me-2"
-                    onClick={() => handleEditPassword(usuario)}
-                  >
-                    <FaKey />
-                  </Button>
-                  <Button
-                    variant={usuario.estado === 1 ? 'danger' : 'success'}
-                    className="ms-2"
-                    onClick={() => handleChangeEstado(usuario)}
-                  >
-                    {usuario.estado === 1 ? 'Desactivar' : 'Activar'}
-                  </Button>
-                </div>
-              </td>
+      <div className="table-responsive" style={{ maxHeight: '83%', overflowY: 'scroll' }}>
+        <Table >
+          <thead style={{ position: 'sticky', top: 0, backgroundColor: '#fff', zIndex: 1 }}>
+            <tr className='text-center'>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>DNI</th>
+              <th>Usuario</th>
+              <th>Estado</th>
+              <th>Rol</th>
+              <th>Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody >
+            {filteredUsuarios.map((usuario) => (
+              <tr key={usuario.id}>
+                <td className='text-center'>{usuario.id}</td>
+                <td>{usuario.nombre}</td>
+                <td>{usuario.apellido}</td>
+                <td>{usuario.dni}</td>
+                <td>{usuario.usuario}</td>
+                <td>
+                  <span className={`badge ${usuario.estado === 1 ? 'bg-success' : 'bg-danger'}`}>
+                    {usuario.estado === 1 ? 'Activo' : 'Inactivo'}
+                  </span>
+                </td>
+                <td className='text-center'>{usuario.rol === 1 ? 'Superadministrador' : 'Administrador'}</td>
+                <td>
+                  <div className="d-flex justify-content align-items-center">
+                    <Button
+                      className="icon-button icon-edit me-2"
+                      onClick={() => {
+                        setEditId(usuario.id);
+                        setEditDni(usuario.dni);
+                        setEditNombre(usuario.nombre);
+                        setEditApellido(usuario.apellido);
+                        setEditRol(usuario.rol);
+                        setShowEditModal(true);
+                      }}
+                    >
+                      <FaEdit />
+                    </Button>
+                    <Button
+                      className="icon-button icon-password me-2"
+                      onClick={() => handleEditPassword(usuario)}
+                    >
+                      <FaKey />
+                    </Button>
+                    <Button
+                      variant={usuario.estado === 1 ? 'danger' : 'success'}
+                      className="ms-2"
+                      onClick={() => handleChangeEstado(usuario)}
+                    >
+                      {usuario.estado === 1 ? 'Desactivar' : 'Activar'}
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      </div>
 
-      {/* Modal para agregar usuario */}
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Agregar Usuario</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmit}>
-            <Form.Group controlId="dni">
+            <Form.Group className="mb-3">
               <Form.Label>DNI</Form.Label>
               <Form.Control
                 type="text"
                 value={dni}
-                onChange={(e) => setDni(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Verifica si la longitud es menor o igual a 8 y es un número
+                  if (value.length <= 8 && /^\d*$/.test(value)) {
+                    setDni(value);
+                  }
+                }}
                 required
               />
             </Form.Group>
-            <Form.Group controlId="nombre">
+            <Form.Group className="mb-3">
               <Form.Label>Nombre</Form.Label>
               <Form.Control
                 type="text"
@@ -279,7 +295,7 @@ function Usuario() {
                 required
               />
             </Form.Group>
-            <Form.Group controlId="apellido">
+            <Form.Group className="mb-3">
               <Form.Label>Apellido</Form.Label>
               <Form.Control
                 type="text"
@@ -288,7 +304,7 @@ function Usuario() {
                 required
               />
             </Form.Group>
-            <Form.Group controlId="usuario">
+            <Form.Group className="mb-3">
               <Form.Label>Usuario</Form.Label>
               <Form.Control
                 type="text"
@@ -297,93 +313,101 @@ function Usuario() {
                 required
               />
             </Form.Group>
-            <Form.Group controlId="contrasena">
+            <Form.Group className="mb-3">
               <Form.Label>Contraseña</Form.Label>
               <Form.Control
                 type="password"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
+                value={nuevaContrasena}
+                onChange={(e) => setNuevaContrasena(e.target.value)}
                 required
               />
             </Form.Group>
-            <Form.Group controlId="rol">
-              <Form.Label>Rol</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>Confirmar Contraseña</Form.Label>
               <Form.Control
-                as="select"
+                type="password"
+                value={confirmarContrasena}
+                onChange={(e) => setConfirmarContrasena(e.target.value)}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Rol</Form.Label>
+              <Form.Select
                 value={rol}
-                onChange={(e) => setRol(Number(e.target.value))}
+                onChange={(e) => setRol(parseInt(e.target.value))}
+                required
               >
                 <option value={1}>Superadministrador</option>
                 <option value={2}>Administrador</option>
-              </Form.Control>
+              </Form.Select>
             </Form.Group>
-            <Button variant="primary" type="submit" className="mt-3">
-              Guardar
+            <Button variant="primary" type="submit">
+              Agregar Usuario
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
-
-      {/* Modal para editar usuario */}
-      <Modal show={showEditModal} onHide={() => setShowEditModal(false)} size="lg">
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Editar Usuario</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleEditSubmit}>
-            <Form.Group controlId="dni">
+            <Form.Group className="mb-3">
               <Form.Label>DNI</Form.Label>
               <Form.Control
                 type="text"
-                value={dni}
-                onChange={(e) => setDni(e.target.value)}
+                value={editDni}
+                onChange={(e) => {
+                  if (e.target.value.length <= 8 && /^\d*$/.test(e.target.value)) {
+                    setEditDni(e.target.value);
+                  }
+                }}
                 required
               />
             </Form.Group>
-            <Form.Group controlId="nombre">
+            <Form.Group className="mb-3">
               <Form.Label>Nombre</Form.Label>
               <Form.Control
                 type="text"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                value={editNombre}
+                onChange={(e) => setEditNombre(e.target.value)}
                 required
               />
             </Form.Group>
-            <Form.Group controlId="apellido">
+            <Form.Group className="mb-3">
               <Form.Label>Apellido</Form.Label>
               <Form.Control
                 type="text"
-                value={apellido}
-                onChange={(e) => setApellido(e.target.value)}
+                value={editApellido}
+                onChange={(e) => setEditApellido(e.target.value)}
                 required
               />
             </Form.Group>
-            <Form.Group controlId="rol">
+            <Form.Group className="mb-3">
               <Form.Label>Rol</Form.Label>
-              <Form.Control
-                as="select"
-                value={rol}
-                onChange={(e) => setRol(Number(e.target.value))}
+              <Form.Select value={editRol}
+                onChange={(e) => setEditRol(parseInt(e.target.value))}
+                required
               >
                 <option value={1}>Superadministrador</option>
                 <option value={2}>Administrador</option>
-              </Form.Control>
+              </Form.Select>
             </Form.Group>
-            <Button variant="primary" type="submit" className="mt-3">
-              Guardar
+            <Button variant="primary" type="submit">
+              Guardar Cambios
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
-
-      {/* Modal para editar contraseña */}
-      <Modal show={showEditPasswordModal} onHide={() => setShowEditPasswordModal(false)} size="lg">
+      <Modal show={showEditPasswordModal} onHide={() => setShowEditPasswordModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Editar Usuario y Contraseña</Modal.Title>
+          <Modal.Title>Cambiar Contraseña</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleSubmitPassword}>
-            <Form.Group controlId="usuario">
+            <Form.Group className="mb-3">
               <Form.Label>Usuario</Form.Label>
               <Form.Control
                 type="text"
@@ -392,17 +416,35 @@ function Usuario() {
                 required
               />
             </Form.Group>
-            <Form.Group controlId="contrasena">
-              <Form.Label>Nueva Contraseña</Form.Label>
+            <Form.Group className="mb-3">
+              <Form.Label>Contraseña Actual</Form.Label>
               <Form.Control
                 type="password"
-                value={contrasena}
-                onChange={(e) => setContrasena(e.target.value)}
+                value={contrasenaActual}
+                onChange={(e) => setContrasenaActual(e.target.value)}
                 required
               />
             </Form.Group>
-            <Button variant="primary" type="submit" className="mt-3">
-              Guardar
+            <Form.Group className="mb-3">
+              <Form.Label>Nueva Contraseña</Form.Label>
+              <Form.Control
+                type="password"
+                value={nuevaContrasena}
+                onChange={(e) => setNuevaContrasena(e.target.value)}
+                required
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Confirmar Nueva Contraseña</Form.Label>
+              <Form.Control
+                type="password"
+                value={confirmarContrasena}
+                onChange={(e) => setConfirmarContrasena(e.target.value)}
+                required
+              />
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Guardar Cambios
             </Button>
           </Form>
         </Modal.Body>
